@@ -63,7 +63,7 @@ export const updateCollaborator = async (req: Request, res: Response) => {
 export const listActiveCollaborators = async (req: Request, res: Response) => {
   const collaborators = await prisma.collaborator.findMany({
     where: { status: "Ativo" },
-    orderBy: { createdAt: "asc" },
+    orderBy: { createdAt: "desc" },
   });
 
   res.status(201).json({
@@ -78,7 +78,7 @@ export const listAllCollaborators = async (req: Request, res: Response) => {
   const skip = (Number(page) - 1) * take;
 
   const collaborators = await prisma.collaborator.findMany({
-    orderBy: { createdAt: "asc" },
+    orderBy: { createdAt: "desc" },
     skip,
     take,
   });

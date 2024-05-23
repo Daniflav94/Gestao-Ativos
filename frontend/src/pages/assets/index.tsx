@@ -19,7 +19,6 @@ export function Assets() {
     assetEdit,
     setAssetEdit,
     handleFile,
-    setStatus,
     setCanAllocated,
     purchaseDateValue,
     setPurchaseDateValue,
@@ -70,7 +69,6 @@ export function Assets() {
         errors={errors}
         isLoadingFile={isLoadingFile}
         filename={filename}
-        setStatus={setStatus}
         setCanAllocated={setCanAllocated}
         purchaseDateValue={purchaseDateValue}
         setPurchaseDateValue={setPurchaseDateValue}

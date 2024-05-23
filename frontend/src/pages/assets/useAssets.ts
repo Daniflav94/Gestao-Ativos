@@ -31,7 +31,6 @@ const useAssets = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fileInvoice, setFileInvoice] = useState("");
   const [filename, setFilename] = useState("");
-  const [status, setStatus] = useState(new Set([]));
   const [canAllocated, setCanAllocated] = useState(new Set([]));
   const [purchaseDateValue, setPurchaseDateValue] = useState(
     assetEdit ? parseDate(convertDate(assetEdit.purchaseDate)) : undefined
@@ -129,9 +128,6 @@ const useAssets = () => {
       return;
     }
 
-    status.forEach((value) => {
-      setValue("status", value);
-    });
 
     canAllocated.forEach((value) => {
       value === "Sim"
@@ -147,7 +143,6 @@ const useAssets = () => {
       observation: data.observation,
       supplier: data.supplier,
       canAllocated: watch("canAllocated"),
-      status: watch("status"),
       invoice: fileInvoice,
     };
 
@@ -193,7 +188,6 @@ const useAssets = () => {
     assetEdit,
     setAssetEdit,
     handleFile,
-    setStatus,
     setCanAllocated,
     purchaseDateValue,
     setPurchaseDateValue,

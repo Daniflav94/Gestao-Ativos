@@ -37,7 +37,6 @@ interface Props {
   errors: FieldErrors<IAssets>;
   isLoadingFile: boolean;
   filename: string;
-  setStatus: React.Dispatch<React.SetStateAction<Set<never>>>;
   setCanAllocated: React.Dispatch<React.SetStateAction<Set<never>>>;
   purchaseDateValue?: CalendarDate;
   closingGuaranteeValue?: CalendarDate;
@@ -61,7 +60,6 @@ export function ModalAsset({
   setValue,
   isLoadingFile,
   filename,
-  setStatus,
   setCanAllocated,
   purchaseDateValue,
   setPurchaseDateValue,
@@ -162,21 +160,6 @@ export function ModalAsset({
               label="Pode ser alocado?"
               onChange={(value) => {
                 setCanAllocated(value);
-              }}
-            />
-
-            <CustomSelect
-              listItems={[
-                { value: "Reserva", label: "Reserva" },
-                { value: "Alocado", label: "Alocado" },
-                { value: "Desabilitado", label: "Desabilitado" },
-                { value: "Manutenção", label: "Manutenção" },
-              ]}
-              label="Status"
-              onChange={(value) => {
-                {
-                  setStatus(value);
-                }
               }}
             />
           </S.DualInput>

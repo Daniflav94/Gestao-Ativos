@@ -64,7 +64,7 @@ export function TableComponent({
   const [page, setPage] = useState(1);
 
   const statusColorMap = {
-    Reserva: "success",
+    Disponível: "success",
     Alocado: "secondary",
     Desabilitado: "danger",
     Manutenção: "warning",
@@ -108,7 +108,7 @@ export function TableComponent({
 
     { key: "actions", label: "" },
   ];
-  const statusOptions = ["Reserva", "Alocado", "Desabilitado", "Manutenção"];
+  const statusOptions = ["Disponível", "Alocado", "Desabilitado", "Manutenção"];
 
   const filteredItems = hasSearchFilter
     ? listComplete.filter((asset) => {
@@ -170,7 +170,7 @@ export function TableComponent({
           const assetStatus =
             asset.status === "Alocado"
               ? StatusAssets.Alocated
-              : asset.status === "Reserva"
+              : asset.status === "Disponível"
               ? StatusAssets.Available
               : asset.status === "Desabilitado"
               ? StatusAssets.Disabled
@@ -249,7 +249,7 @@ export function TableComponent({
               <Tooltip className="bg-danger-100" content="Excluir" size="sm">
                 <span
                   className="text-lg cursor-pointer "
-                  onClick={() => {deleteAsset(asset.uidAsset as string), setPage(1)}}
+                  onClick={() => {deleteAsset(asset.id as string), setPage(1)}}
                 >
                   <Trash2 color="#be1818" size={18} />
                 </span>
@@ -326,7 +326,7 @@ export function TableComponent({
                       <Circle
                         size={6}
                         color={
-                          status === "Reserva"
+                          status === "Disponível"
                             ? "#17C964"
                             : status === "Alocado"
                             ? "#9353D3"
@@ -337,7 +337,7 @@ export function TableComponent({
                             : ""
                         }
                         fill={
-                          status === "Reserva"
+                          status === "Disponível"
                             ? "#17C964"
                             : status === "Alocado"
                             ? "#9353D3"

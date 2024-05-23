@@ -10,5 +10,5 @@ export interface IAssets {
     invoice?: string;
     observation?: string;
     canAllocated: boolean;
-    status: StatusAssets;
+    status?: StatusAssets;
 }

@@ -52,7 +52,7 @@ export function TableManagement({
   const [statusFilter, setStatusFilter] = useState("");
 
   const statusColorMap = {
-    Reserva: "success",
+    Disponível: "success",
     Alocado: "secondary",
     Desabilitado: "danger",
     Manutenção: "warning",
@@ -88,7 +88,7 @@ export function TableManagement({
 
     { key: "actions", label: "" },
   ];
-  const statusOptions = ["Reserva", "Alocado", "Desabilitado", "Manutenção"];
+  const statusOptions = ["Disponível", "Alocado", "Desabilitado", "Manutenção"];
 
   const filteredItems = hasSearchFilter
     ? historicAssetsList.filter((asset) => {
@@ -199,7 +199,7 @@ export function TableManagement({
           const assetStatus =
             asset.status === "Alocado"
               ? StatusAssets.Alocated
-              : asset.status === "Reserva"
+              : asset.status === "Disponível"
               ? StatusAssets.Available
               : asset.status === "Desabilitado"
               ? StatusAssets.Disabled
@@ -322,7 +322,7 @@ export function TableManagement({
                       <Circle
                         size={6}
                         color={
-                          status === "Reserva"
+                          status === "Disponível"
                             ? "#17C964"
                             : status === "Alocado"
                             ? "#9353D3"
@@ -333,7 +333,7 @@ export function TableManagement({
                             : ""
                         }
                         fill={
-                          status === "Reserva"
+                          status === "Disponível"
                             ? "#17C964"
                             : status === "Alocado"
                             ? "#9353D3"
@@ -395,7 +395,7 @@ export function TableManagement({
           loadingState={isLoading ? "loading" : "idle"}
         >
           {(item) => (
-            <TableRow key={item.uid}>
+            <TableRow key={item.id}>
               {(columnKey) => (
                 <TableCell>{renderCell(item, columnKey)}</TableCell>
               )}

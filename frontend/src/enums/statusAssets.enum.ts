@@ -1,5 +1,5 @@
 export enum StatusAssets {
-    Available = "Reserva",
+    Available = "Disponível",
     Alocated = "Alocado",
     Disabled = "Desabilitado",
     Maintenance = "Manutenção"

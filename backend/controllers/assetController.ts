@@ -28,7 +28,7 @@ export const registerAsset = async (req: Request, res: Response) => {
       purchaseDate: new Date(data.purchaseDate),
       closingGuarantee: new Date(data.closingGuarantee),
       invoice,
-      status: "Reserva",
+      status: "Disponível",
     },
   });
 
@@ -82,13 +82,13 @@ export const listAllAssets = async (req: Request, res: Response) => {
     const skip = (Number(page) - 1) * take;
 
     assets = await prisma.asset.findMany({
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: "desc" },
       skip,
       take,
     });
   } else {
     assets = await prisma.asset.findMany({
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: "desc" },
     });
   }
 
