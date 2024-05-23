@@ -1,3 +1,5 @@
+import { StatusAssets } from "../enums/statusAssets.enum";
+
 export interface IAssets {
     id?: string;
     idClient: string;
@@ -8,5 +10,5 @@ export interface IAssets {
     invoice?: string;
     observation?: string;
     canAllocated: boolean;
-    status: string;
+    status: StatusAssets;
 }

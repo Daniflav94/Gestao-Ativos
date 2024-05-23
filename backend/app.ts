@@ -1,6 +1,6 @@
 import express from "express";
 import path from "path";
-// import { router } from "./routes/Router"
+import { router } from "./routes/router"
 
 require("dotenv").config();
 
@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors({origin: "http://localhost:5173"}));
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
-//app.use(router);
+app.use(router);
 
 app.listen(port, () => {
   console.log(`App rodando na porta ${port}`);

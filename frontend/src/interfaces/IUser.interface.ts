@@ -1,3 +1,5 @@
+import { TypeUser } from "../enums/typeUser.enum";
+
 export interface IUsers {
     id: string;
     name: string;
@@ -5,5 +7,5 @@ export interface IUsers {
     email: string;
     phone: string;
     status: string;
-    type: string;
+    type: TypeUser;
 }

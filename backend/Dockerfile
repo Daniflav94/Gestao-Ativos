@@ -13,5 +13,5 @@ RUN npm install
 
 COPY . /usr/src/app
 
-EXPOSE 5000
+EXPOSE 3001
 CMD [ "npm", "run", "start:migrate:prod" ]
