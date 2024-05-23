@@ -23,7 +23,6 @@ model User {
   status         String
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @default(now())
-  deletedAt      DateTime?
   AssetsHistoric AssetsHistoric[]
 }
 
@@ -42,8 +41,8 @@ model Asset {
   id               String           @id @default(uuid())
   idClient         String           @unique
   description      String
-  purchaseDate     DateTime
-  closingGuarantee DateTime
+  purchaseDate     DateTime         @db.Date
+  closingGuarantee DateTime         @db.Date
   supplier         String
   invoice          String?
   observation      String?
@@ -51,12 +50,11 @@ model Asset {
   status           String
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @default(now())
-  deletedAt        DateTime?
   AssetsHistoric   AssetsHistoric[]
 }
 
 model AssetsHistoric {
-  id             String @id @default(uuid())
+  id             String   @id @default(uuid())
   assetId        String
   collaboratorId String
   createdBy      String
