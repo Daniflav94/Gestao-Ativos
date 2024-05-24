@@ -17,8 +17,6 @@ interface IFilter {
   description?: string;
   idClient?: string;
   supplier?: string;
-  closingGuarantee?: Date;
-  purchaseDate?: Date;
   status?: string;
   name?: string;
   email?: string;
@@ -32,10 +30,6 @@ export const registerHistoric = async (req: Req, res: Response) => {
 
   const asset = await prisma.asset.findUnique({
     where: { id: data.assetId },
-  });
-
-  const collaborator = await prisma.collaborator.findUnique({
-    where: { id: data.collaboratorId },
   });
 
   if (!asset) {
@@ -53,19 +47,34 @@ export const registerHistoric = async (req: Req, res: Response) => {
     return;
   }
 
-  if (!collaborator || collaborator.status === "Inativo") {
-    res.status(400).json({ errors: ["Colaborador consta como inativo."] });
-    return;
+  if (data.collaboratorId) {
+    const collaborator = await prisma.collaborator.findUnique({
+      where: { id: data.collaboratorId },
+    });
+
+    if (!collaborator || collaborator.status === "Inativo") {
+      res.status(400).json({ errors: ["Colaborador consta como inativo."] });
+      return;
+    }
   }
 
   const newData = await prisma.assetsHistoric.create({
     data: {
-      ...data,
-      createdBy: idUser,
+      dateRegister: new Date(data.dateRegister),
+      previousStatus: asset.status,
+      status: data.status,
+      createdBy: idUser as string,
+      assetId: data.assetId,
+      collaboratorId: data.collaboratorId,
     },
   });
 
-  if (!newData) {
+  const updateStatusAsset = await prisma.asset.update({
+    where: { id: asset.id },
+    data: { status: data.status, updatedAt: new Date() },
+  });
+
+  if (!newData || !updateStatusAsset) {
     res
       .status(500)
       .json({ errors: ["Houve um erro, tente novamente mais tarde."] });
@@ -77,16 +86,13 @@ export const registerHistoric = async (req: Req, res: Response) => {
   });
 };
 
-export const updateAssetHistoric = async (req: Request, res: Response) => {
+export const updateAssetHistoric = async (req: Req, res: Response) => {
   const { id } = req.params;
   const data = req.body;
+  const idUser = req.user?.id;
 
   const assetHistoric = await prisma.assetsHistoric.findUnique({
     where: { id },
-  });
-
-  const collaborator = await prisma.collaborator.findUnique({
-    where: { id: data.collaboratorId },
   });
 
   if (!assetHistoric) {
@@ -94,21 +100,70 @@ export const updateAssetHistoric = async (req: Request, res: Response) => {
     return;
   }
 
-  if (data.status) {
+  const asset = await prisma.asset.findUnique({
+    where: { id: data.assetId },
+  });
+
+  if (!asset) {
+    res.status(500).json({ errors: ["Ativo não encontrado."] });
+    return;
+  }
+
+  if (data.collaboratorId) {
+    const collaborator = await prisma.collaborator.findUnique({
+      where: { id: data.collaboratorId },
+    });
+
+    if (!collaborator || collaborator.status === "Inativo") {
+      res.status(400).json({ errors: ["Colaborador consta como inativo."] });
+      return;
+    }
+  }
+
+  if (data.status === "Alocado" && !data.collaboratorId) {
+    res.status(400).json({
+      errors: [
+        "Erro! Para status alocado o colaborador precisa ser informado.",
+      ],
+    });
+    return;
+  }
+
+  if (data.status !== assetHistoric.status) {
     res.status(400).json({ errors: ["Erro! Status não pode ser editado."] });
     return;
   }
 
-  if (!collaborator || collaborator.status === "Inativo") {
-    res.status(400).json({ errors: ["Colaborador consta como inativo."] });
-    return;
+  if (asset && asset.id !== assetHistoric.assetId) {
+    if (asset.status === assetHistoric.status) {
+      res.status(400).json({
+        errors: [
+          `Erro! Status do ativo selecionado já está como ${asset.status}.`,
+        ],
+      });
+      return;
+    } else {
+      await prisma.asset.update({
+        where: { id: data.assetId },
+        data: { status: data.status, updatedAt: new Date() },
+      });
+
+      await prisma.asset.update({
+        where: { id: assetHistoric.assetId },
+        data: { status: assetHistoric.previousStatus, updatedAt: new Date() },
+      });
+    }
   }
 
   const update = await prisma.assetsHistoric.update({
     where: { id },
     data: {
-      ...data,
-      updatedAt: new Date(),
+      dateRegister: new Date(data.dateRegister),
+      previousStatus: asset.status,
+      status: data.status,
+      createdBy: idUser as string,
+      assetId: data.assetId,
+      collaboratorId: data.collaboratorId,
     },
   });
 
@@ -155,7 +210,7 @@ export const filterHistoric = async (req: Request, res: Response) => {
     include: { asset: true, collaborator: true, user: true },
   });
 
-  let arrayHistoricFilter = [];
+  let arrayHistoricFilter: AssetsHistoric[] = [];
 
   const keys = Object.keys(filter) as Array<keyof typeof filter>;
 
@@ -167,22 +222,56 @@ export const filterHistoric = async (req: Request, res: Response) => {
         if (
           key === "description" ||
           key === "idClient" ||
-          key === "closingGuarantee" ||
-          key === "purchaseDate" ||
           key === "supplier" ||
           key === "status"
         ) {
-          isFiltered.push(item.asset[key] === filter[key])
-        } else if(key === "name" || key === "email"){
-          isFiltered.push(item.collaborator[key] === filter[key] || item.user[key] === filter[key])
-        } else if(key === "dateRegisterFinal" || key === "dateRegisterInitial"){
-          //converter para timestamp
-        }
+          isFiltered.push(
+            item.asset[key]
+              .toLowerCase()
+              .includes((filter[key] as string).toLowerCase())
+          );
+        } else if (key === "name" || (key === "email" && item.collaborator)) {
+          isFiltered.push(
+            (item.collaborator as Collaborator)[key]
+              .toLowerCase()
+              .includes((filter[key] as string).toLowerCase()) ||
+              item.user[key]
+                .toLowerCase()
+                .includes((filter[key] as string).toLowerCase())
+          );
+        } else if (
+          key === "dateRegisterFinal" ||
+          key === "dateRegisterInitial"
+        ) {
+          const dateItemTmz = item.dateRegister.getTime();
+          const dateInitialTmz = new Date(
+            filter["dateRegisterInitial"] as Date
+          ).getTime();
+          const dateFinalTmz = new Date(
+            filter["dateRegisterFinal"] as Date
+          ).getTime();
 
-        if (!isFiltered.includes(false)) {
-          arrayHistoricFilter.push(item);
+          if (dateInitialTmz && dateFinalTmz) {
+            isFiltered.push(
+              dateItemTmz >= dateInitialTmz && dateItemTmz <= dateFinalTmz
+            );
+          } else if (dateInitialTmz && !dateFinalTmz) {
+            isFiltered.push(dateItemTmz >= dateInitialTmz);
+          } else if (!dateInitialTmz && dateFinalTmz) {
+            isFiltered.push(dateItemTmz <= dateFinalTmz);
+          }
+
         }
       });
+
+      if (!isFiltered.includes(false)) {
+        arrayHistoricFilter.push(item);
+      }
     }
   }
+
+  res.status(201).json({
+    data: arrayHistoricFilter,
+    total: arrayHistoricFilter.length
+  });
 };

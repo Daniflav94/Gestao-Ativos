@@ -56,14 +56,15 @@ model Asset {
 model AssetsHistoric {
   id             String   @id @default(uuid())
   assetId        String
-  collaboratorId String
+  collaboratorId String?
   createdBy      String
   dateRegister   DateTime
   observation    String?
   status         String
+  previousStatus String
   createdAt      DateTime @default(now())
 
   asset        Asset        @relation(fields: [assetId], references: [id])
-  collaborator Collaborator @relation(fields: [collaboratorId], references: [id])
+  collaborator Collaborator? @relation(fields: [collaboratorId], references: [id])
   user         User         @relation(fields: [createdBy], references: [id])
 }

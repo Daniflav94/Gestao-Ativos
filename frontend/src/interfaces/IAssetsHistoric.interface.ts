@@ -4,11 +4,14 @@ import { IUsers } from "./IUser.interface";
 
 export interface IAssetsHistoric {
     id?: string;
-    asset: IAssets;
+    assetId: string;
+    asset?: IAssets;
+    collaboratorId?: string;
     collaborator?: ICollaborators;
-    createdBy: IUsers;
+    createdBy: string;
+    user?: IUsers;
     dateRegister: Date;
     observation?: string;
     status: string;
-    createdAt: string;
+    createdAt?: string;
 }
