@@ -85,8 +85,7 @@ const useHistoricAssets = () => {
       const newArrayStatus = listStatus.filter((status) =>
         assetSelected[0].data.status !== status.label
       );
-      console.log(newArrayStatus)
-  
+    
       setListStatus(
         newArrayStatus.map((status) => {
           return { value: status.value, label: status.label };
@@ -115,9 +114,6 @@ const useHistoricAssets = () => {
     });
   };
 
-  useEffect(() => {
-    
-  }, [fieldStateAsset.items.length > 0]);
 
   function convertDate(dateString: Date) {
     const splitDate = dateString.toLocaleDateString().split("/");
@@ -228,7 +224,7 @@ const useHistoricAssets = () => {
       JSON.parse(JSON.stringify(newAllocation))
     );
 
-    if (!res.error) {
+    if (!res.errors) {
       toast.success("Ativo cadastrado com sucesso!");
 
       handleListAllHistoricAssets();

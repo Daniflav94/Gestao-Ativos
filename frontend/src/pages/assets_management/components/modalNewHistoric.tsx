@@ -9,10 +9,10 @@ import {
   DatePicker,
   Textarea,
 } from "@nextui-org/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IAssetsHistoric } from "../../../interfaces/IAssetsHistoric.interface";
 import { ICollaborators } from "../../../interfaces/ICollaborators.interface";
-import { parseDate, CalendarDate } from "@internationalized/date";
+import { parseDate, CalendarDate, getLocalTimeZone } from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";
 import { CustomSelect } from "../../../components/customSelect";
 
@@ -44,7 +44,6 @@ interface Status {
   label: string;
 }
 
-
 export function ModalNewHistoric({
   data,
   isOpen,
@@ -67,17 +66,23 @@ export function ModalNewHistoric({
   } = useForm<IAssetsHistoric>();
 
   const [errorDate, setErrorDate] = useState("");
-  
+
   const onSubmit: SubmitHandler<IAssetsHistoric> = async (data) => {
     if (!data.dateRegister) {
       setErrorDate("Preencha este campo");
 
       return;
-    }
+    } 
 
     handleCreateAssetHistoric(data);
     reset();
   };
+
+  useEffect(() => {
+    if(dateRegister){
+      setValue("dateRegister", (dateRegister as CalendarDate).toDate(getLocalTimeZone()));
+    }
+  },[dateRegister])
 
   return (
     <CustomModal
@@ -138,7 +143,6 @@ export function ModalNewHistoric({
           listItems={listStatus}
           label="Status"
           onChange={(value) => {
-            console.log(value);
             setValue("status", value);
           }}
         />
