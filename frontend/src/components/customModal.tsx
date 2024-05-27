@@ -11,6 +11,7 @@ interface Props {
   modalTitle: string;
   children: string | JSX.Element | JSX.Element[];
   size?: "lg" | "xs" | "sm" | "md" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full";
+  backdrop?: "opaque" | "blur"
 }
 
 export function CustomModal({
@@ -19,6 +20,7 @@ export function CustomModal({
   modalTitle,
   children,
   size = "lg",
+  backdrop = "opaque"
 }: Props) {
   return (
     <>
@@ -27,11 +29,12 @@ export function CustomModal({
         onOpenChange={onOpenChange}
         className="max-h-[85%] overflow-auto outline-none"
         size={size}
+        backdrop={backdrop}
       >
         <ModalContent>
           {() => (
             <>
-              <ModalHeader className="flex flex-col gap-1">
+              <ModalHeader className="flex flex-col gap-1 text-2xl">
                 {modalTitle}
               </ModalHeader>
               <ModalBody className="flex flex-col items-center">

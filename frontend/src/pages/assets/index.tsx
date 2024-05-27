@@ -15,7 +15,6 @@ export function Assets() {
     filename,
     isModalOpen,
     setIsModalOpen,
-    removeAsset,
     assetEdit,
     setAssetEdit,
     handleFile,
@@ -50,7 +49,6 @@ export function Assets() {
         handleListAssets={handleListAssets}
         isLoading={isLoading}
         setIsModalOpen={setIsModalOpen}
-        deleteAsset={removeAsset}
         setAssetEdit={setAssetEdit}
       />
 

@@ -42,7 +42,7 @@ interface Props {
   closingGuaranteeValue?: CalendarDate;
   setPurchaseDateValue: React.Dispatch<React.SetStateAction<CalendarDate | undefined>>;
   setClosingGuaranteeValue: React.Dispatch<React.SetStateAction<CalendarDate | undefined>>
-  convertDate: (date: string) => string;
+  convertDate: (date: Date) => string;
   errorDate?: string;
 }
 

@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { IAssets } from "../../interfaces/IAssets.interface";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { upload } from "../../services/uploadStorage.service";
 import { toast } from "sonner";
 import {
   createAsset,
-  deleteAsset,
   listAll,
   listAllWithPagination,
 } from "../../services/asset.service";
@@ -49,20 +47,20 @@ const useAssets = () => {
     if (purchaseDateValue) {
       setValue(
         "purchaseDate",
-        purchaseDateValue.toDate(getLocalTimeZone()).toLocaleDateString()
+        purchaseDateValue.toDate(getLocalTimeZone())
       );
     }
 
     if (closingGuaranteeValue) {
       setValue(
         "closingGuarantee",
-        closingGuaranteeValue.toDate(getLocalTimeZone()).toLocaleDateString()
+        closingGuaranteeValue.toDate(getLocalTimeZone())
       );
     }
   }, [purchaseDateValue, closingGuaranteeValue]);
 
-  function convertDate(dateString: string) {
-    const splitDate = dateString.split("/");
+  function convertDate(dateString: Date) {
+    const splitDate = dateString.toLocaleDateString().split("/");
 
     const newDate = new Date(
       Number(splitDate[2]),
@@ -82,11 +80,10 @@ const useAssets = () => {
   }
 
   const handleFile = async (event: any) => {
-    const filename = event.target.files[0];
     setIsLoadingFile(true);
-    const file = await upload(event.target.files[0], filename.name);
+    const file = event.target.files[0];
     if (file) {
-      setFilename(filename.name);
+      setFilename(file.name);
       setFileInvoice(file);
       setIsLoadingFile(false);
     }
@@ -128,7 +125,6 @@ const useAssets = () => {
       return;
     }
 
-
     canAllocated.forEach((value) => {
       value === "Sim"
         ? setValue("canAllocated", true)
@@ -164,16 +160,6 @@ const useAssets = () => {
     }
   };
 
-  const removeAsset = async (id: string) => {
-    const res = await deleteAsset(id);
-
-    if (res?.error) {
-      return toast.error(res.error);
-    }
-
-    handleListAssets(0);
-  };
-
   return {
     assetsList,
     listAllAssets,
@@ -184,7 +170,6 @@ const useAssets = () => {
     filename,
     isModalOpen,
     setIsModalOpen,
-    removeAsset,
     assetEdit,
     setAssetEdit,
     handleFile,

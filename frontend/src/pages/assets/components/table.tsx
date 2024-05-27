@@ -44,7 +44,6 @@ interface Props {
   setAssetEdit: (data: IAssets) => void;
   setIsModalOpen: (isOpen: boolean) => void;
   handleListAssets: (page: number) => void;
-  deleteAsset: (id: string) => void;
   listComplete: IAssets[];
 }
 
@@ -57,7 +56,6 @@ export function TableComponent({
   handleListAssets,
   listComplete,
   total,
-  deleteAsset,
 }: Props) {
   const [filterValue, setFilterValue] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -246,14 +244,6 @@ export function TableComponent({
                 </span>
               </Tooltip> */}
 
-              <Tooltip className="bg-danger-100" content="Excluir" size="sm">
-                <span
-                  className="text-lg cursor-pointer "
-                  onClick={() => {deleteAsset(asset.id as string), setPage(1)}}
-                >
-                  <Trash2 color="#be1818" size={18} />
-                </span>
-              </Tooltip>
             </div>
           );
         default:

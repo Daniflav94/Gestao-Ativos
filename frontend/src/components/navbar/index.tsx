@@ -8,7 +8,8 @@ import {
   DropdownMenu,
   DropdownTrigger,
 } from "@nextui-org/react";
-import { ChevronDown, Plus } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { LoginModal } from "../../pages/login";
 
 export function Navbar() {
   const route = useLocation();
@@ -98,6 +99,8 @@ export function Navbar() {
           </Dropdown>
         </S.Div>
       </S.Ul>
+
+      <LoginModal />
     </S.Nav>
   );
 }

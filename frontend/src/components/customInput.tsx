@@ -12,13 +12,14 @@ export function CustomInput(props: any) {
     <Input
       {...props}
       value={field.value}
-      size="sm"
+      size="md"
       onChange={field.onChange}
       variant="bordered"
       classNames={{
         input: ["bg-transparent", "text-black/90",],
         label: ["w-full"],
       }}
+      
             
     />
   );

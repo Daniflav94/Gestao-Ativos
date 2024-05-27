@@ -1,115 +1,74 @@
-import { db } from "../firebase/config";
-import {
-  collection,
-  addDoc,
-  query,
-  getDocs,
-  doc,
-  updateDoc,
-  deleteDoc,
-  limit,
-  startAt,
-} from "firebase/firestore";
+import { api } from "../utils/config";
 import { IAssets } from "../interfaces/IAssets.interface";
-import { findHistoricAsset } from "./assetsHistoric.service";
 
-function getErrorMessage(error: unknown) {
-  if (error instanceof Error) return error.message;
-  return String(error);
-}
+const token = localStorage.getItem("token");
 
-
-export const createAsset = async (data: IAssets) => {
+export const createAsset = async (data: FormData) => {
   try {
-    const save = await addDoc(collection(db, "assets"), data);
+    const res = await fetch(`${api}/assets`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: data,
+    });
 
-    const docRef = doc(db, "assets", save.id);
-    await updateDoc(docRef, { uidAsset: save.id });
-
-    return { data: save };
+    return res.json();
   } catch (error) {
-    console.log(getErrorMessage(error));
-    return { error: getErrorMessage(error) };
+    console.log(error);
   }
 };
 
 export const listAll = async () => {
   try {
-    let res: any[] = [];
-    const q = query(collection(db, "assets"));
-    const querySnapshot = await getDocs(q);
-
-    querySnapshot.forEach((item) => {
-      res.push(item.data());
+    const res = await fetch(`${api}/assets`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
     });
 
-    return { data: res, total: querySnapshot.size };
+    return res.json();
   } catch (error) {
-    console.log(getErrorMessage(error));
-    return { error: getErrorMessage(error) };
+    console.log(error);
   }
 };
 
 export const listAllWithPagination = async (page: number) => {
   try {
-    let res: any[] = [];
+    const res = await fetch(`${api}/assets?page=${page}`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    });
 
-    const q = query(collection(db, "assets"));
-    const firstSnapshot = await getDocs(q);
-
-    if (firstSnapshot.size > 0) {
-      const lastVisible = firstSnapshot.docs[page * 8];
-
-      const next = query(
-        collection(db, "assets"),
-        startAt(lastVisible),
-        limit(8)
-      );
-
-      const querySnapshot = await getDocs(next);
-
-      querySnapshot?.forEach((item) => {
-        res.push(item.data());
-      });
-
-      return { data: res, total: firstSnapshot.size };
-    } else {
-      return { data: undefined, total: 0 };
-    }
+    return res.json();
   } catch (error) {
-    console.log(getErrorMessage(error));
-    return { error: getErrorMessage(error) };
+    console.log(error);
   }
 };
 
-export const editAsset = async (uid: string, asset: Partial<IAssets>) => {
-    try {
-      const docRef = doc(db, "assets", uid);
-      const update = await updateDoc(docRef, asset);
-  
-      return { data: update };
-    } catch (error) {
-      console.log(getErrorMessage(error));
-      return { error: getErrorMessage(error) };
-    }
-  };
-
-
-export const deleteAsset = async (uid: string) => {
+export const editAsset = async (id: string, asset: IAssets) => {
   try {
-    const existHistoric = await findHistoricAsset("uidAsset", uid);
-    console.log(existHistoric)
+    const res = await fetch(`${api}/assets/${id}`, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify(asset),
+    });
 
-    if(!existHistoric){
-      const docRef = doc(db, "assets", uid);
-      await deleteDoc(docRef);
-    }else{
-      return {error: "Ativo possui histórico e não pode ser excluído."}
-    }
-
-    
+    return res.json();
   } catch (error) {
-    console.log(getErrorMessage(error));
-    return { error: getErrorMessage(error) };
+    console.log(error);
   }
 };

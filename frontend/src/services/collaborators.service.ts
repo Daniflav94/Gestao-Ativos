@@ -1,102 +1,76 @@
-import { db } from "../firebase/config";
-import {
-  collection,
-  addDoc,
-  query,
-  getDocs,
-  doc,
-  updateDoc,
-  where,
-  deleteDoc,
-  startAt,
-  limit,
-} from "firebase/firestore";
 import { ICollaborators } from "../interfaces/ICollaborators.interface";
-import { findHistoricAsset } from "./assetsHistoric.service";
+import { api } from "../utils/config";
 
-function getErrorMessage(error: unknown) {
-  if (error instanceof Error) return error.message;
-  return String(error);
-}
+const token = localStorage.getItem("token");
 
 export const createCollaborator = async (data: ICollaborators) => {
   try {
-    const save = await addDoc(collection(db, "collaborators"), data);
+    const res = await fetch(`${api}/collaborators`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify(data),
+    });
 
-    const docRef = doc(db, "collaborators", save.id);
-    await updateDoc(docRef, { uidCollaborator: save.id });
-
-    return { data: save };
+    return res.json();
   } catch (error) {
-    console.log(getErrorMessage(error));
-    return { error: getErrorMessage(error) };
+    console.log(error);
+  }
+};
+
+export const editCollaborator = async (id: string, asset: ICollaborators) => {
+  try {
+    const res = await fetch(`${api}/collaborators/${id}`, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify(asset),
+    });
+
+    return res.json();
+  } catch (error) {
+    console.log(error);
   }
 };
 
 export const listAllCollaborators = async () => {
   try {
-    let res: any[] = [];
-    const q = query(collection(db, "collaborators"), where("status", "==", true));
-    const querySnapshot = await getDocs(q);
-
-    querySnapshot.forEach((item) => {
-      res.push(item.data());
+    const res = await fetch(`${api}/collaborators/`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
     });
 
-    return { data: res, total: querySnapshot.size };
+    return res.json();
   } catch (error) {
-    console.log(getErrorMessage(error));
-    return { error: getErrorMessage(error) };
+    console.log(error);
   }
 };
 
 export const listCollaboratorsWithPagination = async (page: number) => {
   try {
-    let res: any[] = [];
+    const res = await fetch(`${api}/collaborators/list-all?page=${page}`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    });
 
-    const q = query(collection(db, "collaborators"));
-    const firstSnapshot = await getDocs(q);
-
-    if (firstSnapshot.size > 0) {
-      const lastVisible = firstSnapshot.docs[page * 8];
-
-      const next = query(
-        collection(db, "assets"),
-        startAt(lastVisible),
-        limit(8)
-      );
-
-      const querySnapshot = await getDocs(next);
-
-      querySnapshot?.forEach((item) => {
-        res.push(item.data());
-      });
-
-      return { data: res, total: firstSnapshot.size };
-    } else {
-      return { data: undefined, total: 0 };
-    }
+    return res.json();
   } catch (error) {
-    console.log(getErrorMessage(error));
-    return { error: getErrorMessage(error) };
+    console.log(error);
   }
 };
 
-export const deleteCollaborator = async (uid: string) => {
-  try {
-    const existHistoric = findHistoricAsset("uidCollaborator", uid);
-
-    if(!existHistoric){
-      const docRef = doc(db, "collaborators", uid);
-      await deleteDoc(docRef);
-    }else{
-      return {error: "Colaborador está relacionado a um ativo e não pode ser excluído."}
-    }
-
-    
-  } catch (error) {
-    console.log(getErrorMessage(error));
-    return { error: getErrorMessage(error) };
-  }
-};
 

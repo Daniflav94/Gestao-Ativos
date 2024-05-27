@@ -8,4 +8,5 @@ export interface IUsers {
     phone: string;
     status: string;
     type: TypeUser;
+    organizationId: string;
 }
