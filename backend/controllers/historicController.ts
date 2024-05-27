@@ -28,6 +28,15 @@ export const registerHistoric = async (req: Req, res: Response) => {
   const data = req.body;
   const idUser = req.user?.id;
 
+  const user = await prisma.user.findUnique({
+    where: { id: idUser },
+  });
+
+  if (!user) {
+    res.status(400).json({ errors: ["Erro ao encontrar usuário."] });
+    return;
+  }
+
   const asset = await prisma.asset.findUnique({
     where: { id: data.assetId },
   });
@@ -66,6 +75,7 @@ export const registerHistoric = async (req: Req, res: Response) => {
       createdBy: idUser as string,
       assetId: data.assetId,
       collaboratorId: data.collaboratorId,
+      organizationId: user?.organizationId as string,
     },
   });
 
@@ -164,6 +174,7 @@ export const updateAssetHistoric = async (req: Req, res: Response) => {
       createdBy: idUser as string,
       assetId: data.assetId,
       collaboratorId: data.collaboratorId,
+      updatedAt: new Date(),
     },
   });
 
@@ -172,9 +183,19 @@ export const updateAssetHistoric = async (req: Req, res: Response) => {
   });
 };
 
-export const listAllHistoric = async (req: Request, res: Response) => {
+export const listAllHistoric = async (req: Req, res: Response) => {
   const page = req.query.page || 1;
   const take = Number(req.query.take) || null;
+  const idUser = req.user?.id;
+
+  const user = await prisma.user.findUnique({
+    where: { id: idUser },
+  });
+
+  if (!user) {
+    res.status(400).json({ errors: ["Erro ao encontrar usuário."] });
+    return;
+  }
 
   let assetsHistoric: AssetsHistoric[] = [];
 
@@ -182,6 +203,7 @@ export const listAllHistoric = async (req: Request, res: Response) => {
     const skip = (Number(page) - 1) * take;
 
     assetsHistoric = await prisma.assetsHistoric.findMany({
+      where: { organizationId: user?.organizationId },
       orderBy: { createdAt: "desc" },
       include: { asset: true, collaborator: true, user: true },
       skip,
@@ -189,6 +211,7 @@ export const listAllHistoric = async (req: Request, res: Response) => {
     });
   } else {
     assetsHistoric = await prisma.assetsHistoric.findMany({
+      where: { organizationId: user?.organizationId },
       orderBy: { createdAt: "desc" },
       include: { asset: true, collaborator: true, user: true },
     });
@@ -202,10 +225,21 @@ export const listAllHistoric = async (req: Request, res: Response) => {
   });
 };
 
-export const filterHistoric = async (req: Request, res: Response) => {
+export const filterHistoric = async (req: Req, res: Response) => {
   const filter: IFilter = req.body;
+  const idUser = req.user?.id;
+
+  const user = await prisma.user.findUnique({
+    where: { id: idUser },
+  });
+  
+  if (!user) {
+    res.status(400).json({ errors: ["Erro ao encontrar usuário."] });
+    return;
+  }
 
   const historic = await prisma.assetsHistoric.findMany({
+    where: { organizationId: user?.organizationId },
     orderBy: { createdAt: "desc" },
     include: { asset: true, collaborator: true, user: true },
   });
@@ -260,7 +294,6 @@ export const filterHistoric = async (req: Request, res: Response) => {
           } else if (!dateInitialTmz && dateFinalTmz) {
             isFiltered.push(dateItemTmz <= dateFinalTmz);
           }
-
         }
       });
 
@@ -272,6 +305,6 @@ export const filterHistoric = async (req: Request, res: Response) => {
 
   res.status(201).json({
     data: arrayHistoricFilter,
-    total: arrayHistoricFilter.length
+    total: arrayHistoricFilter.length,
   });
 };

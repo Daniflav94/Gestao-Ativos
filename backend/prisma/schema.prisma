@@ -14,43 +14,52 @@ datasource db {
 }
 
 model User {
-  id             String           @id @default(uuid())
+  id             String   @id @default(uuid())
   name           String
-  email          String           @unique
+  email          String   @unique
   password       String
   phone          String
   type           String
   status         String
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @default(now())
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
+
+  organization   Organization     @relation(fields: [organizationId], references: [id])
   AssetsHistoric AssetsHistoric[]
 }
 
 model Collaborator {
-  id             String           @id @default(uuid())
+  id             String   @id @default(uuid())
   name           String
-  email          String           @unique
+  email          String   @unique
   phone          String
   status         String
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @default(now())
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
+
+  organization   Organization     @relation(fields: [organizationId], references: [id])
   AssetsHistoric AssetsHistoric[]
 }
 
 model Asset {
-  id               String           @id @default(uuid())
-  idClient         String           @unique
+  id               String   @id @default(uuid())
+  idClient         String   @unique
   description      String
-  purchaseDate     DateTime         @db.Date
-  closingGuarantee DateTime         @db.Date
+  purchaseDate     DateTime @db.Date
+  closingGuarantee DateTime @db.Date
   supplier         String
   invoice          String?
   observation      String?
   canAllocated     Boolean
   status           String
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @default(now())
-  AssetsHistoric   AssetsHistoric[]
+  organizationId   String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now())
+
+  organization   Organization     @relation(fields: [organizationId], references: [id])
+  AssetsHistoric AssetsHistoric[]
 }
 
 model AssetsHistoric {
@@ -62,9 +71,21 @@ model AssetsHistoric {
   observation    String?
   status         String
   previousStatus String
+  organizationId String
   createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
 
-  asset        Asset        @relation(fields: [assetId], references: [id])
+  asset        Asset         @relation(fields: [assetId], references: [id])
   collaborator Collaborator? @relation(fields: [collaboratorId], references: [id])
-  user         User         @relation(fields: [createdBy], references: [id])
+  user         User          @relation(fields: [createdBy], references: [id])
+  organization Organization  @relation(fields: [organizationId], references: [id])
+}
+
+model Organization {
+  id             String           @id @default(uuid())
+  name           String
+  AssetsHistoric AssetsHistoric[]
+  Asset          Asset[]
+  Collaborator   Collaborator[]
+  User           User[]
 }

@@ -1,7 +1,11 @@
-import { Asset, Collaborator, PrismaClient } from "@prisma/client";
+import { Asset, Collaborator, PrismaClient, User } from "@prisma/client";
 import { Request, Response } from "express";
 
 const prisma = new PrismaClient();
+
+interface Req extends Request {
+  user?: User | null;
+}
 
 const verifyAssetExist = async (idClient: string) => {
   const asset = await prisma.asset.findUnique({
@@ -11,9 +15,19 @@ const verifyAssetExist = async (idClient: string) => {
   return asset;
 };
 
-export const registerAsset = async (req: Request, res: Response) => {
+export const registerAsset = async (req: Req, res: Response) => {
   const data = req.body;
   const invoice = req.file?.filename;
+  const idUser = req.user?.id;
+
+  const user = await prisma.user.findUnique({
+    where: { id: idUser },
+  });
+
+  if (!user) {
+    res.status(400).json({ errors: ["Erro ao encontrar usuário."] });
+    return;
+  }
 
   const asset = await verifyAssetExist(data.idClient);
 
@@ -29,6 +43,7 @@ export const registerAsset = async (req: Request, res: Response) => {
       closingGuarantee: new Date(data.closingGuarantee),
       invoice,
       status: "Disponível",
+      organizationId: user?.organizationId as string,
     },
   });
 
@@ -72,9 +87,20 @@ export const updateAsset = async (req: Request, res: Response) => {
   });
 };
 
-export const listAllAssets = async (req: Request, res: Response) => {
+export const listAllAssets = async (req: Req, res: Response) => {
+  const idUser = req.user?.id;
+
   const page = req.query.page || 1;
   const take = Number(req.query.take) || null;
+
+  const user = await prisma.user.findUnique({
+    where: { id: idUser },
+  });
+
+  if (!user) {
+    res.status(400).json({ errors: ["Erro ao encontrar usuário."] });
+    return;
+  }
 
   let assets: Asset[] = [];
 
@@ -82,6 +108,7 @@ export const listAllAssets = async (req: Request, res: Response) => {
     const skip = (Number(page) - 1) * take;
 
     assets = await prisma.asset.findMany({
+      where: { organizationId: user?.organizationId },
       orderBy: { createdAt: "desc" },
       skip,
       take,

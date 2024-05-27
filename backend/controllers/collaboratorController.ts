@@ -1,7 +1,11 @@
-import { Collaborator, PrismaClient } from "@prisma/client";
+import { Collaborator, PrismaClient, User } from "@prisma/client";
 import { Request, Response } from "express";
 
 const prisma = new PrismaClient();
+
+interface Req extends Request {
+  user?: User | null;
+}
 
 const verifyCollaboratorExist = async (email: string) => {
   const user = await prisma.collaborator.findUnique({
@@ -11,8 +15,18 @@ const verifyCollaboratorExist = async (email: string) => {
   return user;
 };
 
-export const registerCollaborator = async (req: Request, res: Response) => {
+export const registerCollaborator = async (req: Req, res: Response) => {
   const data = req.body;
+  const idUser = req.user?.id;
+
+  const user = await prisma.user.findUnique({
+    where: { id: idUser },
+  });
+
+  if (!user) {
+    res.status(400).json({ errors: ["Erro ao encontrar usuário."] });
+    return;
+  }
 
   const collaborator = await verifyCollaboratorExist(data.email);
 
@@ -25,6 +39,7 @@ export const registerCollaborator = async (req: Request, res: Response) => {
     data: {
       ...data,
       status: "Ativo",
+      organizationId: user?.organizationId as string,
     },
   });
 
@@ -60,9 +75,20 @@ export const updateCollaborator = async (req: Request, res: Response) => {
   });
 };
 
-export const listActiveCollaborators = async (req: Request, res: Response) => {
+export const listActiveCollaborators = async (req: Req, res: Response) => {
+  const idUser = req.user?.id;
+
+  const user = await prisma.user.findUnique({
+    where: { id: idUser },
+  });
+
+  if (!user) {
+    res.status(400).json({ errors: ["Erro ao encontrar usuário."] });
+    return;
+  }
+
   const collaborators = await prisma.collaborator.findMany({
-    where: { status: "Ativo" },
+    where: { status: "Ativo", organizationId: user?.organizationId },
     orderBy: { createdAt: "desc" },
   });
 
@@ -71,13 +97,25 @@ export const listActiveCollaborators = async (req: Request, res: Response) => {
   });
 };
 
-export const listAllCollaborators = async (req: Request, res: Response) => {
+export const listAllCollaborators = async (req: Req, res: Response) => {
+  const idUser = req.user?.id;
+
+  const user = await prisma.user.findUnique({
+    where: { id: idUser },
+  });
+
+  if (!user) {
+    res.status(400).json({ errors: ["Erro ao encontrar usuário."] });
+    return;
+  }
+
   const page = req.query.page || 1;
   const take = 8;
 
   const skip = (Number(page) - 1) * take;
 
   const collaborators = await prisma.collaborator.findMany({
+    where: { organizationId: user?.organizationId },
     orderBy: { createdAt: "desc" },
     skip,
     take,
