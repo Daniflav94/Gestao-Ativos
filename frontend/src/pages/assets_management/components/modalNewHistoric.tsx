@@ -1,5 +1,4 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import { CustomInput } from "../../../components/customInput";
 import { CustomModal } from "../../../components/customModal";
 import { IAssets } from "../../../interfaces/IAssets.interface";
 import * as S from "../styles";
@@ -7,20 +6,31 @@ import {
   Autocomplete,
   AutocompleteItem,
   Button,
+  DatePicker,
   Textarea,
 } from "@nextui-org/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { IAssetsHistoric } from "../../../interfaces/IAssetsHistoric.interface";
 import { ICollaborators } from "../../../interfaces/ICollaborators.interface";
-import { useFilter } from "@react-aria/i18n";
+import { parseDate, CalendarDate } from "@internationalized/date";
+import { I18nProvider } from "@react-aria/i18n";
+import { CustomSelect } from "../../../components/customSelect";
 
 interface Props {
-  asset?: IAssetsHistoric;
+  data?: IAssetsHistoric;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   assetsAvailable: Select[];
   collaborators: Select[];
-  handleCreateAllocation: (data: IAssetsHistoric) => void;
+  handleCreateAssetHistoric: (data: IAssetsHistoric) => void;
+  handleSelectionCollaboratorChange: (key: any) => void;
+  handleSelectionAssetChange: (key: any) => void;
+  dateRegister?: CalendarDate;
+  setDateRegister?: React.Dispatch<
+    React.SetStateAction<CalendarDate | undefined>
+  >;
+  convertDate: (dateString: Date) => string;
+  listStatus: Status[];
 }
 
 interface Select {
@@ -29,97 +39,43 @@ interface Select {
   data: ICollaborators | IAssets;
 }
 
+interface Status {
+  value: string;
+  label: string;
+}
+
+
 export function ModalNewHistoric({
-  asset,
+  data,
   isOpen,
   onOpenChange,
   assetsAvailable,
   collaborators,
-  handleCreateAllocation,
+  handleCreateAssetHistoric,
+  handleSelectionCollaboratorChange,
+  handleSelectionAssetChange,
+  dateRegister,
+  setDateRegister,
+  convertDate,
+  listStatus,
 }: Props) {
- 
   const {
     handleSubmit,
     setValue,
-    register,
-    control,
     reset,
-    watch,
     formState: { errors },
   } = useForm<IAssetsHistoric>();
 
-  const dateValue = watch("dateRegister");
-
-  useEffect(() => {
-    //setValue("dateAllocation", normalizeDate(dateValue));
-  }, [dateValue]);
-
-  const [fieldStateAsset, setFieldStateAsset] = useState({
-    selectedKey: "",
-    inputValue: "",
-    items: assetsAvailable,
-  });
-
-  const [fieldStateCollaborator, setFieldStateCollaborator] = useState({
-    selectedKey: "",
-    inputValue: "",
-    items: collaborators,
-  });
-
-  const { startsWith } = useFilter({ sensitivity: "base" });
-
-  const handleSelectionAssetChange = (key: any) => {
-    setFieldStateAsset((prevState) => {
-      let selectedItem = prevState.items.find((option) => option.value === key);
-
-      return {
-        inputValue: selectedItem?.label || "",
-        selectedKey: key,
-        items: assetsAvailable.filter((item) =>
-          startsWith(item.label, selectedItem?.label || "")
-        ),
-      };
-    });
-  };
-
-  const handleSelectionCollaboratorChange = (key: any) => {
-    setFieldStateCollaborator((prevState) => {
-      let selectedItem = prevState.items.find((option) => option.value === key);
-
-      return {
-        inputValue: selectedItem?.label || "",
-        selectedKey: key,
-        items: collaborators.filter((item) =>
-          startsWith(item.label, selectedItem?.label || "")
-        ),
-      };
-    });
-  };
-
+  const [errorDate, setErrorDate] = useState("");
+  
   const onSubmit: SubmitHandler<IAssetsHistoric> = async (data) => {
-    const asset = assetsAvailable.find((item) => {
-      if (item.value === fieldStateAsset.selectedKey) {
-        return item;
-      }
-    });
+    if (!data.dateRegister) {
+      setErrorDate("Preencha este campo");
 
-    const collaborator = collaborators.find((item) => {
-      if (item.label === fieldStateCollaborator.selectedKey) {
-        return item;
-      }
-    });
+      return;
+    }
 
-    const newAllocation: IAssetsHistoric = {
-      asset: asset?.data as IAssets,
-      collaborator: collaborator?.data as ICollaborators,
-      dateRegister: new Date(data.dateRegister).toLocaleDateString(),
-      observation: data.observation,
-      status: "Alocado",
-      createdBy: "",
-      createdAt: new Date().toLocaleDateString()
-    };
-
-    handleCreateAllocation(newAllocation);
+    handleCreateAssetHistoric(data);
     reset();
   };
 
@@ -127,20 +83,24 @@ export function ModalNewHistoric({
     <CustomModal
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      modalTitle="Alocar ativo"
+      modalTitle="Nova ocorrência"
     >
       <S.Form onSubmit={handleSubmit(onSubmit)}>
-        <CustomInput
-          type="date"
-          label="Data alocação"
-          color={errors.dateRegister ? "danger" : "default"}
-          control={control}
-          name={"dateRegister"}
-          refs={register("dateRegister")}
-          isInvalid={errors.dateRegister}
-          errorMessage={errors.dateRegister?.message}
-          isRequired
-        />
+        <I18nProvider locale="pt-BR">
+          <DatePicker
+            label="Data da ocorrência"
+            variant="bordered"
+            minValue={new CalendarDate(1950, 1, 1)}
+            value={dateRegister}
+            defaultValue={data && parseDate(convertDate(data.dateRegister))}
+            onChange={setDateRegister}
+            isRequired
+            isInvalid={errorDate && !dateRegister ? true : false}
+            errorMessage={errorDate && !dateRegister && errorDate}
+            color={errors.dateRegister ? "danger" : "default"}
+            size="sm"
+          />
+        </I18nProvider>
 
         <Autocomplete
           defaultItems={assetsAvailable}
@@ -174,12 +134,21 @@ export function ModalNewHistoric({
           )}
         </Autocomplete>
 
+        <CustomSelect
+          listItems={listStatus}
+          label="Status"
+          onChange={(value) => {
+            console.log(value);
+            setValue("status", value);
+          }}
+        />
+
         <Textarea
           label="Observações"
           variant="bordered"
           minRows={2}
           onChange={(e) => setValue("observation", e.target.value)}
-          defaultValue={asset?.observation}
+          defaultValue={data?.observation}
         />
 
         <Button
@@ -187,7 +156,7 @@ export function ModalNewHistoric({
           color="primary"
           className="text-slate-50 w-full my-5"
         >
-          {asset ? "Editar" : "Cadastrar"}
+          {data ? "Editar" : "Cadastrar"}
         </Button>
       </S.Form>
     </CustomModal>

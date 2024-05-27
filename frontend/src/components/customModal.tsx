@@ -27,14 +27,14 @@ export function CustomModal({
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        className="max-h-[85%] overflow-auto outline-none"
+        className="max-h-[85%] overflow-auto outline-none p-2"
         size={size}
         backdrop={backdrop}
       >
         <ModalContent>
           {() => (
             <>
-              <ModalHeader className="flex flex-col gap-1 text-2xl">
+              <ModalHeader className="flex flex-col gap-1 text-2xl text-center">
                 {modalTitle}
               </ModalHeader>
               <ModalBody className="flex flex-col items-center">

@@ -37,10 +37,10 @@ export const Table = styled.div`
 `;
 
 export const IconClose = styled.img`
-  width: 0.9rem;
-  height: 0.9rem;
+  width: 1rem;
   position: absolute;
-  right: 23.5rem;
+  left: 0.5rem;
+  top: 0.5rem;
   z-index: 9999;
   opacity: 0.7;
 

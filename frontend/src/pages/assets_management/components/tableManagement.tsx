@@ -82,7 +82,7 @@ export function TableManagement({
       label: "Status",
     },
     {
-      key: "uidUser",
+      key: "user",
       label: "Registrado por",
     },
 
@@ -107,10 +107,10 @@ export function TableManagement({
               filter1.collaborator?.name
                 .toLowerCase()
                 .includes(filterValue.toLowerCase()) ||
-              filter1.asset.description
+              filter1.asset?.description
                 .toLowerCase()
                 .includes(filterValue.toLowerCase()) ||
-              filter1.asset.idClient.includes(filterValue)
+              filter1.asset?.idClient.includes(filterValue)
             );
           }
         } else {
@@ -118,10 +118,10 @@ export function TableManagement({
             asset.collaborator?.name
               .toLowerCase()
               .includes(filterValue.toLowerCase()) ||
-            asset.asset.description
+            asset.asset?.description
               .toLowerCase()
               .includes(filterValue.toLowerCase()) ||
-            asset.asset.idClient.includes(filterValue)
+            asset.asset?.idClient.includes(filterValue)
           );
         }
       })
@@ -143,7 +143,9 @@ export function TableManagement({
         case "dateRegister" || "createdAt":
           return (
             <div className="flex flex-col">
-              <p className="text-bold text-sm capitalize">{cellValue}</p>
+              <p className="text-bold text-sm capitalize">
+                {new Date(cellValue).toLocaleDateString()}
+              </p>
             </div>
           );
 
@@ -152,9 +154,9 @@ export function TableManagement({
             <div className="flex flex-col">
               <p
                 className="text-bold text-sm capitalize hover:text-orange-600 hover:cursor-pointer"
-                onClick={() => openModalInfo(asset.asset, "asset")}
+                onClick={() => openModalInfo(asset.asset as IAssets, "asset")}
               >
-                {asset.asset.idClient}
+                {asset.asset?.idClient}
               </p>
             </div>
           );
@@ -164,9 +166,9 @@ export function TableManagement({
             <div className="flex flex-col">
               <p
                 className="text-bold text-sm capitalize hover:text-orange-600 hover:cursor-pointer"
-                onClick={() => openModalInfo(asset.asset, "asset")}
+                onClick={() => openModalInfo(asset.asset as IAssets, "asset")}
               >
-                {asset.asset.description}
+                {asset.asset?.description}
               </p>
             </div>
           );
@@ -186,11 +188,11 @@ export function TableManagement({
             </div>
           );
 
-        case "uidUser":
+        case "user":
           return (
             <div className="flex flex-col">
               <p className="text-bold text-sm capitalize hover:text-orange-600 hover:cursor-pointer">
-                {asset.createdBy.name}
+                {asset.user?.name}
               </p>
             </div>
           );
@@ -211,7 +213,6 @@ export function TableManagement({
               color={statusColorMap[assetStatus] as Color}
               size="sm"
               variant="flat"
-              endContent={<ChevronDown size={13} />}
             >
               {asset.status}
             </Chip>
@@ -282,77 +283,79 @@ export function TableManagement({
             onValueChange={onSearchChange}
           />
           <div className="flex gap-3 items-center">
-            {statusFilter != "" && (
-              <S.IconClose
-                src={iconClose}
-                onClick={() => setStatusFilter("")}
-              />
-            )}
+            <div className="relative">
+              {statusFilter != "" && (
+                <S.IconClose
+                  src={iconClose}
+                  onClick={() => setStatusFilter("")}
+                />
+              )}
 
-            <Dropdown className="min-w-fit">
-              <DropdownTrigger
-                className={
-                  statusFilter ? "hidden sm:flex ps-8 " : "hidden sm:flex "
-                }
-              >
-                <Button
-                  endContent={<ChevronDown size={20} />}
-                  size="sm"
+              <Dropdown className="min-w-fit">
+                <DropdownTrigger
+                  className={
+                    statusFilter ? "hidden sm:flex ps-8 " : "hidden sm:flex "
+                  }
+                >
+                  <Button
+                    endContent={<ChevronDown size={20} />}
+                    size="sm"
+                    variant="flat"
+                  >
+                    {statusFilter
+                      ? `Status: ${statusFilter}`
+                      : "Filtrar por Status"}
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  disallowEmptySelection
+                  aria-label="Table Columns"
+                  closeOnSelect={true}
+                  selectedKeys={statusFilter}
+                  selectionMode="single"
+                  hideSelectedIcon
                   variant="flat"
                 >
-                  {statusFilter
-                    ? `Status: ${statusFilter}`
-                    : "Filtrar por Status"}
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={true}
-                selectedKeys={statusFilter}
-                selectionMode="single"
-                hideSelectedIcon
-                variant="flat"
-              >
-                {statusOptions.map((status) => (
-                  <DropdownItem
-                    key={status}
-                    className="capitalize"
-                    startContent={
-                      <Circle
-                        size={6}
-                        color={
-                          status === "Disponível"
-                            ? "#17C964"
-                            : status === "Alocado"
-                            ? "#9353D3"
-                            : status === "Manutenção"
-                            ? "#F5A524"
-                            : status === "Desabilitado"
-                            ? "#C20E4D"
-                            : ""
-                        }
-                        fill={
-                          status === "Disponível"
-                            ? "#17C964"
-                            : status === "Alocado"
-                            ? "#9353D3"
-                            : status === "Manutenção"
-                            ? "#F5A524"
-                            : status === "Desabilitado"
-                            ? "#C20E4D"
-                            : ""
-                        }
-                        strokeWidth={1.25}
-                      />
-                    }
-                    onClick={() => setStatusFilter(status)}
-                  >
-                    {capitalize(status)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
+                  {statusOptions.map((status) => (
+                    <DropdownItem
+                      key={status}
+                      className="capitalize"
+                      startContent={
+                        <Circle
+                          size={6}
+                          color={
+                            status === "Disponível"
+                              ? "#17C964"
+                              : status === "Alocado"
+                              ? "#9353D3"
+                              : status === "Manutenção"
+                              ? "#F5A524"
+                              : status === "Desabilitado"
+                              ? "#C20E4D"
+                              : ""
+                          }
+                          fill={
+                            status === "Disponível"
+                              ? "#17C964"
+                              : status === "Alocado"
+                              ? "#9353D3"
+                              : status === "Manutenção"
+                              ? "#F5A524"
+                              : status === "Desabilitado"
+                              ? "#C20E4D"
+                              : ""
+                          }
+                          strokeWidth={1.25}
+                        />
+                      }
+                      onClick={() => setStatusFilter(status)}
+                    >
+                      {capitalize(status)}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            </div>
 
             <Button
               className="bg-foreground text-background"
@@ -360,13 +363,19 @@ export function TableManagement({
               size="sm"
               onClick={() => setIsModalNewHistoricOpen(true)}
             >
-              Novo apontamento
+              Nova ocorrência
             </Button>
           </div>
         </div>
-        <span className="text-default-400 text-small">
-          Exibindo últimos {total} registros
-        </span>
+        {hasSearchFilter ? (
+          <span className="text-default-400 text-small">
+            Encontrados {filteredItems.length} registros
+          </span>
+        ) : (
+          <span className="text-default-400 text-small">
+            Exibindo últimos {filteredItems.length} registros
+          </span>
+        )}
       </div>
     );
   }, [

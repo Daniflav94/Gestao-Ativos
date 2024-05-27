@@ -2,9 +2,10 @@ import { CustomModal } from "../../../components/customModal";
 import { IAssets } from "../../../interfaces/IAssets.interface";
 import iconPdf from "../../../assets/icons/pdf.png";
 import * as S from "../styles";
+import { ICollaborators } from "../../../interfaces/ICollaborators.interface";
 
 interface Props {
-  data: IAssets;
+  data: IAssets | ICollaborators;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
 }
@@ -36,14 +37,14 @@ export function ModalMoreInfoAsset({ isOpen, onOpenChange, data }: Props) {
           <S.ItemTitle>
             Data da compra:
           </S.ItemTitle>
-          <span>{(data as IAssets)?.purchaseDate}</span>
+          <span>{new Date((data as IAssets)?.purchaseDate).toLocaleDateString()}</span>
         </S.ContentData>
 
         <S.ContentData>
           <S.ItemTitle>
             Encerramento garantia:
           </S.ItemTitle>
-          <span>{(data as IAssets)?.closingGuarantee}</span>
+          <span>{new Date((data as IAssets)?.closingGuarantee).toLocaleDateString()}</span>
         </S.ContentData>
 
         <S.ContentData>

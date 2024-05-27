@@ -8,7 +8,7 @@ export interface IAssetsHistoric {
     asset?: IAssets;
     collaboratorId?: string;
     collaborator?: ICollaborators;
-    createdBy: string;
+    createdBy?: string;
     user?: IUsers;
     dateRegister: Date;
     observation?: string;

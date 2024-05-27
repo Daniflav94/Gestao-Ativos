@@ -72,8 +72,6 @@ export function ModalAsset({
     reset();
   }, []);
 
-  
-
   return (
     <CustomModal
       isOpen={isOpen}
