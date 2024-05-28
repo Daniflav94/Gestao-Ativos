@@ -9,12 +9,17 @@ import {
   DatePicker,
   Textarea,
 } from "@nextui-org/react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IAssetsHistoric } from "../../../interfaces/IAssetsHistoric.interface";
 import { ICollaborators } from "../../../interfaces/ICollaborators.interface";
-import { parseDate, CalendarDate, getLocalTimeZone } from "@internationalized/date";
+import {
+  parseDate,
+  CalendarDate,
+  getLocalTimeZone,
+} from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";
 import { CustomSelect } from "../../../components/customSelect";
+import { useFilter } from "@react-aria/i18n";
 
 interface Props {
   data?: IAssetsHistoric;
@@ -23,14 +28,25 @@ interface Props {
   assetsAvailable: Select[];
   collaborators: Select[];
   handleCreateAssetHistoric: (data: IAssetsHistoric) => void;
-  handleSelectionCollaboratorChange: (key: any) => void;
-  handleSelectionAssetChange: (key: any) => void;
   dateRegister?: CalendarDate;
-  setDateRegister?: React.Dispatch<
-    React.SetStateAction<CalendarDate | undefined>
-  >;
+  setDateRegister?: (date: CalendarDate | undefined) => void;
   convertDate: (dateString: Date) => string;
-  listStatus: Status[];
+  statusSelected: Set<never>;
+  setStatusSelected: React.Dispatch<React.SetStateAction<Set<never>>>;
+  setFieldStateAsset: React.Dispatch<
+    React.SetStateAction<{
+      selectedKey: string;
+      inputValue: string;
+      items: Select[];
+    }>
+  >;
+  setFieldStateCollaborator: React.Dispatch<
+    React.SetStateAction<{
+      selectedKey: string;
+      inputValue: string;
+      items: Select[];
+    }>
+  >;
 }
 
 interface Select {
@@ -51,12 +67,13 @@ export function ModalNewHistoric({
   assetsAvailable,
   collaborators,
   handleCreateAssetHistoric,
-  handleSelectionCollaboratorChange,
-  handleSelectionAssetChange,
   dateRegister,
   setDateRegister,
   convertDate,
-  listStatus,
+  setFieldStateAsset,
+  setFieldStateCollaborator,
+  statusSelected,
+  setStatusSelected,
 }: Props) {
   const {
     handleSubmit,
@@ -66,23 +83,102 @@ export function ModalNewHistoric({
   } = useForm<IAssetsHistoric>();
 
   const [errorDate, setErrorDate] = useState("");
+  const [assetSelected, setAssetSelected] = useState("");
+  const [listStatus, setListStatus] = useState<Status[]>([]);
+  const status = [
+    { label: "Disponível", value: "Disponível" },
+    { label: "Alocado", value: "Alocado" },
+    { label: "Manutenção", value: "Manutenção" },
+    { label: "Desabilitado", value: "Desabilitado" },
+  ];
+
+  const [disabledCollaborators, setDisabledCollaborators] = useState(true);
+
+  const { startsWith } = useFilter({ sensitivity: "base" });
+
+  const handleStatus = (key: any) => {
+    handleSelectionAssetChange(key);
+    setAssetSelected(key);
+
+    const asset = assetsAvailable.find((item) => item.value === key);
+
+    if (asset) {
+      const newArrayStatus = status.filter(
+        (status) => asset?.data.status !== status.label
+      );
+
+      setListStatus(
+        newArrayStatus.map((status) => {
+          return { value: status.value, label: status.label };
+        })
+      );
+    } else {
+      setListStatus(status);
+    }
+  };
+
+  const handleSelectionAssetChange = (key: any) => {
+    setFieldStateAsset((prevState) => {
+      let selectedItem = prevState.items.find((option) => option.value === key);
+
+      return {
+        inputValue: selectedItem?.label || "",
+        selectedKey: key,
+        items: assetsAvailable.filter((item) =>
+          startsWith(item.value, selectedItem?.value || "")
+        ),
+      };
+    });
+  };
+
+  const handleSelectionCollaboratorChange = (key: any) => {
+    setFieldStateCollaborator((prevState) => {
+      let selectedItem = prevState.items.find((option) => option.value === key);
+
+      return {
+        inputValue: selectedItem?.label || "",
+        selectedKey: key,
+        items: collaborators.filter((item) =>
+          startsWith(item.label, selectedItem?.label || "")
+        ),
+      };
+    });
+  };
 
   const onSubmit: SubmitHandler<IAssetsHistoric> = async (data) => {
     if (!data.dateRegister) {
       setErrorDate("Preencha este campo");
 
       return;
-    } 
+    }
 
     handleCreateAssetHistoric(data);
     reset();
   };
 
   useEffect(() => {
-    if(dateRegister){
-      setValue("dateRegister", (dateRegister as CalendarDate).toDate(getLocalTimeZone()));
+    if (dateRegister) {
+      setValue(
+        "dateRegister",
+        (dateRegister as CalendarDate).toDate(getLocalTimeZone())
+      );
     }
-  },[dateRegister])
+  }, [dateRegister]);
+
+  useEffect(() => {
+    statusSelected.forEach((value: string) => {
+      value !== "Alocado"
+        ? setDisabledCollaborators(true)
+        : setDisabledCollaborators(false);
+    });
+  }, [statusSelected]);
+
+  useEffect(() => {
+    setErrorDate("");
+    setAssetSelected("");
+    setDisabledCollaborators(true);
+    setListStatus(status);
+  }, [isOpen]);
 
   return (
     <CustomModal
@@ -114,28 +210,10 @@ export function ModalNewHistoric({
           isRequired
           className="w-full"
           variant="bordered"
-          onSelectionChange={(value) => handleSelectionAssetChange(value)}
+          onSelectionChange={(value) => handleStatus(value)}
         >
           {(asset) => (
             <AutocompleteItem key={asset.value}>{asset.label}</AutocompleteItem>
-          )}
-        </Autocomplete>
-
-        <Autocomplete
-          defaultItems={collaborators}
-          label="Colaborador"
-          placeholder="Busque pelo nome do colaborador"
-          className="w-full"
-          variant="bordered"
-          isRequired
-          onSelectionChange={(value) =>
-            handleSelectionCollaboratorChange(value)
-          }
-        >
-          {(collaborator) => (
-            <AutocompleteItem key={collaborator.value}>
-              {collaborator.label}
-            </AutocompleteItem>
           )}
         </Autocomplete>
 
@@ -143,9 +221,28 @@ export function ModalNewHistoric({
           listItems={listStatus}
           label="Status"
           onChange={(value) => {
-            setValue("status", value);
+            setStatusSelected(value);
           }}
+          isDisabled={assetSelected === ""}
         />
+
+        <Autocomplete
+          defaultItems={collaborators}
+          label="Colaborador"
+          placeholder="Busque pelo nome do colaborador"
+          className="w-full"
+          variant="bordered"
+          onSelectionChange={(value) =>
+            handleSelectionCollaboratorChange(value)
+          }
+          isDisabled={disabledCollaborators}
+        >
+          {(collaborator) => (
+            <AutocompleteItem key={collaborator.value}>
+              {collaborator.label}
+            </AutocompleteItem>
+          )}
+        </Autocomplete>
 
         <Textarea
           label="Observações"

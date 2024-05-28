@@ -8,6 +8,7 @@ export interface Props {
     label: string;
   }[];
   isRequired?: boolean;
+  isDisabled?: boolean;
   onChange(value: any): void;
 }
 
@@ -22,6 +23,7 @@ export function CustomSelect(props: Props) {
       variant="bordered"
       size="sm"
       isRequired
+      isDisabled={props.isDisabled}
       onSelectionChange={(value) => props.onChange(value)}
       placeholder={props.placeholder}
     >

@@ -10,8 +10,8 @@ import { ModalMoreInfoAsset } from "./components/modalMoreInfoAsset";
 
 export function AssetsManagement() {
   const {
-    handleSelectionAssetChange,
-    handleSelectionCollaboratorChange,
+    setFieldStateAsset,
+    setFieldStateCollaborator,
     lastAssetsHistoric,
     historicAssetsList,
     total,
@@ -31,7 +31,8 @@ export function AssetsManagement() {
     dateRegister,
     setDateRegister,
     convertDate,
-    listStatus
+    statusSelected,
+    setStatusSelected,
   } = useHistoricAssets();
 
   return (
@@ -56,12 +57,13 @@ export function AssetsManagement() {
         assetsAvailable={assetsAvailable}
         collaborators={collaborators}
         handleCreateAssetHistoric={handleCreateAssetHistoric}
-        handleSelectionAssetChange={handleSelectionAssetChange}
-        handleSelectionCollaboratorChange={handleSelectionCollaboratorChange}
+        setFieldStateAsset={setFieldStateAsset}
+        setFieldStateCollaborator={setFieldStateCollaborator}
         dateRegister={dateRegister}
         setDateRegister={setDateRegister}
         convertDate={convertDate}
-        listStatus={listStatus}
+        statusSelected={statusSelected}
+        setStatusSelected={setStatusSelected}
       />
 
       {/* <ModalCollaborator

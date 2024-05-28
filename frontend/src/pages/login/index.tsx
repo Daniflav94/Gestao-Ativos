@@ -31,7 +31,6 @@ export function LoginModal() {
   } = useForm<ILogin>();
 
   useEffect(() => {
-    console.log("componente login")
     if (!token) {
       setIsOpen(true);
     }

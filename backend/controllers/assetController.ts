@@ -115,6 +115,7 @@ export const listAllAssets = async (req: Req, res: Response) => {
     });
   } else {
     assets = await prisma.asset.findMany({
+      where: { organizationId: user?.organizationId },
       orderBy: { createdAt: "desc" },
     });
   }

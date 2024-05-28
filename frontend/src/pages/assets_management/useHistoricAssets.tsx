@@ -10,18 +10,12 @@ import {
 import { listAll } from "../../services/asset.service";
 import { listAllCollaborators } from "../../services/collaborators.service";
 import { toast } from "sonner";
-import { useFilter } from "@react-aria/i18n";
-import { parseDate } from "@internationalized/date";
+import { CalendarDate, parseDate } from "@internationalized/date";
 
 interface Select {
   value: string;
   label: string;
   data: ICollaborators | IAssets;
-}
-
-interface Status {
-  value: string;
-  label: string;
 }
 
 const useHistoricAssets = () => {
@@ -43,9 +37,10 @@ const useHistoricAssets = () => {
   const [viewInfoAsset, setViewInfoAsset] = useState<IAssets>();
   const [viewInfoCollaborator, setViewInfoCollaborator] =
     useState<ICollaborators>();
-  const [dateRegister, setDateRegister] = useState(
+  const [dateRegister, setDateRegister] = useState<CalendarDate | undefined>(
     data ? parseDate(convertDate(data.dateRegister)) : undefined
   );
+  const [statusSelected, setStatusSelected] = useState(new Set([]));
 
   useEffect(() => {
     handleListAllHistoricAssets();
@@ -64,55 +59,6 @@ const useHistoricAssets = () => {
     inputValue: "",
     items: collaborators,
   });
-
-  const [listStatus, setListStatus] = useState<Status[]>([
-    { label: "Disponível", value: "Disponível" },
-    { label: "Alocado", value: "Alocado" },
-    { label: "Manutenção", value: "Manutenção" },
-    { label: "Desabilitado", value: "Desabilitado" },
-  ]);
-
-
-  const { startsWith } = useFilter({ sensitivity: "base" });
-
-  const handleSelectionAssetChange = (key: any) => {
-    setFieldStateAsset((prevState) => {
-      let selectedItem = prevState.items.find((option) => option.value === key);
-      const assetSelected = assetsAvailable.filter((item) =>
-        startsWith(item.label, selectedItem?.label || "")
-      )
-
-      const newArrayStatus = listStatus.filter((status) =>
-        assetSelected[0].data.status !== status.label
-      );
-    
-      setListStatus(
-        newArrayStatus.map((status) => {
-          return { value: status.value, label: status.label };
-        })
-      );
-
-      return {
-        inputValue: selectedItem?.label || "",
-        selectedKey: key,
-        items: assetSelected
-      };
-    });
-  };
-
-  const handleSelectionCollaboratorChange = (key: any) => {
-    setFieldStateCollaborator((prevState) => {
-      let selectedItem = prevState.items.find((option) => option.value === key);
-
-      return {
-        inputValue: selectedItem?.label || "",
-        selectedKey: key,
-        items: collaborators.filter((item) =>
-          startsWith(item.label, selectedItem?.label || "")
-        ),
-      };
-    });
-  };
 
 
   function convertDate(dateString: Date) {
@@ -211,17 +157,30 @@ const useHistoricAssets = () => {
       }
     });
 
-    const newAllocation: IAssetsHistoric = {
+    let statusString = "";
+
+    statusSelected.forEach((value: string) => {
+      value === "Alocado"
+        ? statusString = "Alocado"
+        : value === "Manutenção"
+        ? statusString = "Manutenção"
+        : value === "Disponível"
+        ? statusString = "Disponível"
+        : value === "Desabilitado"
+        ? statusString = "Desabilitado" : null
+    })
+    
+    const newRegister: IAssetsHistoric = {
       assetId: asset?.data.id as string,
       collaboratorId: collaborator?.data.id as string,
       dateRegister: new Date(data.dateRegister),
       observation: data.observation,
-      status: "Alocado",
+      status: statusString,
       createdAt: new Date().toLocaleDateString(),
     };
 
     const res = await createAssetHistoric(
-      JSON.parse(JSON.stringify(newAllocation))
+      JSON.parse(JSON.stringify(newRegister))
     );
 
     if (!res.errors) {
@@ -230,16 +189,17 @@ const useHistoricAssets = () => {
       handleListAllHistoricAssets();
       handleListAssets();
       setIsModalNewHistoricOpen(false);
+      setDateRegister(undefined);
     } else {
       toast.error(
-        "Ocorreu um erro ao alocar ativo. Tente novamente mais tarde."
+        "Ocorreu um erro ao registrar ocorrência. Tente novamente mais tarde."
       );
     }
   };
 
   return {
-    handleSelectionAssetChange,
-    handleSelectionCollaboratorChange,
+    setFieldStateAsset,
+    setFieldStateCollaborator,
     lastAssetsHistoric,
     historicAssetsList,
     total,
@@ -259,7 +219,8 @@ const useHistoricAssets = () => {
     dateRegister,
     setDateRegister,
     convertDate,
-    listStatus,
+    statusSelected,
+    setStatusSelected,
   };
 };
 

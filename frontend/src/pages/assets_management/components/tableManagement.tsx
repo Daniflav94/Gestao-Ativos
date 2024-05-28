@@ -71,7 +71,7 @@ export function TableManagement({
     },
     {
       key: "dateRegister",
-      label: "Data de alocação",
+      label: "Data ocorrência",
     },
     {
       key: "name",
@@ -191,7 +191,7 @@ export function TableManagement({
         case "user":
           return (
             <div className="flex flex-col">
-              <p className="text-bold text-sm capitalize hover:text-orange-600 hover:cursor-pointer">
+              <p className="text-bold text-sm capitalize">
                 {asset.user?.name}
               </p>
             </div>

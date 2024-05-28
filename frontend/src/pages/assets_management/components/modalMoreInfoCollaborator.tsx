@@ -38,11 +38,7 @@ export function ModalMoreInfoCollaborator({
 
         <S.ContentData>
           <S.ItemTitle>Status:</S.ItemTitle>
-          {(data as ICollaborators)?.status === true ? (
-            <span>Ativo</span>
-          ) : (
-            <span>Desabilitado</span>
-          )}
+          {(data as ICollaborators)?.status}
         </S.ContentData>
       </S.ContainerData>
     </CustomModal>

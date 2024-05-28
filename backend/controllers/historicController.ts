@@ -56,6 +56,11 @@ export const registerHistoric = async (req: Req, res: Response) => {
     return;
   }
 
+  if(data.status === "Alocado" && !data.collaboratorId){
+    res.status(400).json({ errors: ["Selecione um colaborador."] });
+    return;
+  }
+
   if (data.collaboratorId) {
     const collaborator = await prisma.collaborator.findUnique({
       where: { id: data.collaboratorId },
@@ -76,6 +81,7 @@ export const registerHistoric = async (req: Req, res: Response) => {
       assetId: data.assetId,
       collaboratorId: data.collaboratorId,
       organizationId: user?.organizationId as string,
+      observation: data.observation
     },
   });
 
