@@ -14,7 +14,7 @@ export const Header = styled.div`
   width: 100%;
   flex-direction: column;
   box-sizing: border-box;
-  margin-left: 10rem;
+  padding: 0 4rem;
 `;
 
 export const Title = styled.h3`
@@ -33,7 +33,8 @@ export const Subtitle = styled.p`
 
 export const Table = styled.div`
   margin: 2rem;
-  width: 90%;
+  padding: 0 4rem;
+  width: 100%;
 `;
 
 export const IconClose = styled.img`

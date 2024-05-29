@@ -31,11 +31,15 @@ const useAssets = () => {
   const [filename, setFilename] = useState("");
   const [canAllocated, setCanAllocated] = useState(new Set([]));
   const [purchaseDateValue, setPurchaseDateValue] = useState(
-    assetEdit ? parseDate(convertDate(assetEdit.purchaseDate as Date)) : undefined
+    assetEdit
+      ? parseDate(convertDate(assetEdit.purchaseDate as Date))
+      : undefined
   );
 
   const [closingGuaranteeValue, setClosingGuaranteeValue] = useState(
-    assetEdit ? parseDate(convertDate(assetEdit.closingGuarantee as Date)) : undefined
+    assetEdit
+      ? parseDate(convertDate(assetEdit.closingGuarantee as Date))
+      : undefined
   );
   const [errorDate, setErrorDate] = useState("");
 
@@ -131,7 +135,9 @@ const useAssets = () => {
     const newAsset: IAssets = {
       idClient: data.idClient,
       description: capitalize(data.description),
-      closingGuarantee: new Date(data.closingGuarantee).toISOString().slice(0, 10),
+      closingGuarantee: new Date(data.closingGuarantee)
+        .toISOString()
+        .slice(0, 10),
       purchaseDate: new Date(data.purchaseDate).toISOString().slice(0, 10),
       observation: data.observation,
       supplier: data.supplier,
@@ -160,7 +166,9 @@ const useAssets = () => {
       setPurchaseDateValue(undefined);
       setClosingGuaranteeValue(undefined);
     } else {
-      toast.error("Ocorreu um erro ao cadastrar. Tente novamente mais tarde.");
+      res.errors[0].msg
+        ? toast.error(res.errors[0].msg)
+        : toast.error(res.errors[0]);
     }
   };
 

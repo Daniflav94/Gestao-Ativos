@@ -12,7 +12,7 @@ export const Container = styled.nav`
 export const Header = styled.div`
  display: flex;
  width: 100%;
- margin-left: 10rem;
+ padding: 0 4rem;
  flex-direction: column;
  box-sizing: border-box;
 `;
@@ -33,7 +33,8 @@ export const Subtitle = styled.p`
 
 export const Table = styled.div`
   margin: 2rem;
-  width: 90%;
+  padding: 0 4rem;
+  width: 100%;
 `;
 
 export const IconClose = styled.img`

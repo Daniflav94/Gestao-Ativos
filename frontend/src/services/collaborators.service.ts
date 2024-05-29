@@ -21,10 +21,10 @@ export const createCollaborator = async (data: ICollaborators) => {
   }
 };
 
-export const editCollaborator = async (id: string, asset: ICollaborators) => {
+export const editCollaborator = async (id: string, asset: Partial<ICollaborators>) => {
   try {
     const res = await fetch(`${api}/collaborators/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",

@@ -3,6 +3,7 @@ import { ICollaborators } from "../../interfaces/ICollaborators.interface";
 import { toast } from "sonner";
 import {
   createCollaborator,
+  editCollaborator,
   listAllCollaborator,
   listCollaboratorsWithPagination,
 } from "../../services/collaborators.service";
@@ -18,8 +19,11 @@ export function Collaborators() {
   const [allCollaborators, setAllCollaborators] = useState<ICollaborators[]>(
     []
   );
+  const [collaboratorEditing, setCollaboratorEditing] =
+    useState<ICollaborators>();
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [statusSelected, setStatusSelected] = useState(new Set([]));
 
   useEffect(() => {
     handleListCollaborators(1);
@@ -41,41 +45,84 @@ export function Collaborators() {
     setIsLoading(false);
   };
 
-  const onSubmitCollaborator: SubmitHandler<ICollaborators> = async (data) => {
-    const newCollaborator: ICollaborators = {
+  const updateCollaborator: SubmitHandler<ICollaborators> = async (data) => {
+    let statusString = collaboratorEditing?.status;
+
+    statusSelected.forEach((value: string) => {
+      value === "Ativo"
+        ? (statusString = "Ativo")
+        : (statusString = "Desativado");
+    });
+
+    const edit: ICollaborators = {
       name: data.name,
       email: data.email,
       phone: data.phone,
-      status: "Ativo",
+      status: statusString as string,
     };
 
-    const res = await createCollaborator(newCollaborator);
+    const res = await editCollaborator(collaboratorEditing?.id as string, edit);
 
-    if (!res.error) {
-      toast.success("Colaborador cadastrado com sucesso!");
+    if (!res.errors) {
+      toast.success("Colaborador editado!");
 
       handleListCollaborators(1);
       setIsModalNewCollaboratorOpen(false);
     } else {
-      toast.error(
-        "Ocorreu um erro ao cadastrar colaborador. Tente novamente mais tarde."
-      );
+      res.errors[0].msg
+        ? toast.error(res.errors[0].msg)
+        : toast.error(res.errors[0]);
     }
   };
+
+  const onSubmitCollaborator: SubmitHandler<ICollaborators> = async (data) => {
+    if (!collaboratorEditing) {
+      const newCollaborator: ICollaborators = {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        status: "Ativo",
+      };
+
+      const res = await createCollaborator(newCollaborator);
+
+      if (!res.errors) {
+        toast.success("Colaborador cadastrado com sucesso!");
+
+        handleListCollaborators(1);
+        setIsModalNewCollaboratorOpen(false);
+      } else {
+        res.errors[0].msg
+          ? toast.error(res.errors[0].msg)
+          : toast.error(res.errors[0]);
+      }
+    } else {
+      updateCollaborator(data);
+    }
+  };
+
+  const openModal = (type: string, collaborator?: ICollaborators) => {
+    if (type === "new") {
+      setCollaboratorEditing(undefined);
+      setIsModalNewCollaboratorOpen(true);
+    } else {
+      setCollaboratorEditing(collaborator);
+      setIsModalNewCollaboratorOpen(true);
+    }
+  };
+
   return (
     <S.Container>
       <S.Header>
         <S.Title>COLABORADORES</S.Title>
-        <S.Subtitle>
-          Listagem de todos os colaboradores cadastrados.{" "}
-        </S.Subtitle>
+        <S.Subtitle>Listagem de todos os colaboradores cadastrados </S.Subtitle>
       </S.Header>
 
       <TableCollaborators
         total={total}
         listCollaborators={collaborators}
         isLoading={isLoading}
-        setIsModalNewCollaboratorOpen={setIsModalNewCollaboratorOpen}
+        openModal={openModal}
         handleListCollaborators={handleListCollaborators}
         listComplete={allCollaborators}
       />
@@ -84,6 +131,8 @@ export function Collaborators() {
         isOpen={isModalNewCollaboratorOpen}
         onOpenChange={setIsModalNewCollaboratorOpen}
         onSubmit={onSubmitCollaborator}
+        collaborator={collaboratorEditing}
+        setStatusSelected={setStatusSelected}
       />
     </S.Container>
   );

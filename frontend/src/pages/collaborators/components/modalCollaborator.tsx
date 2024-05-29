@@ -1,6 +1,4 @@
-import {
-  useForm,
-} from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { CustomInput } from "../../../components/customInput";
 import { CustomModal } from "../../../components/customModal";
 import { IAssets } from "../../../interfaces/IAssets.interface";
@@ -9,18 +7,23 @@ import { Button } from "@nextui-org/react";
 import { ICollaborators } from "../../../interfaces/ICollaborators.interface";
 import { useEffect } from "react";
 import { normalizePhoneNumber } from "../../../mask/mask";
+import { CustomSelect } from "../../../components/customSelect";
 
 interface Props {
   asset?: IAssets;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onSubmit: (data: ICollaborators) => void;
+  collaborator?: ICollaborators;
+  setStatusSelected: React.Dispatch<React.SetStateAction<Set<never>>>;
 }
 
 export function ModalCollaborator({
   isOpen,
   onOpenChange,
   onSubmit,
+  collaborator,
+  setStatusSelected,
 }: Props) {
   const {
     handleSubmit,
@@ -40,13 +43,17 @@ export function ModalCollaborator({
 
   useEffect(() => {
     reset();
-  }, [isOpen])
 
+    if (collaborator) {
+      setValue("phone", collaborator.phone);
+    }
+  }, [isOpen, collaborator]);
+  console.log(collaborator);
   return (
     <CustomModal
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      modalTitle="Cadastrar colaborador"
+      modalTitle={collaborator ? "Editar Colaborador" : "Cadastrar colaborador"}
     >
       <S.Form onSubmit={handleSubmit(onSubmit)}>
         <CustomInput
@@ -57,6 +64,7 @@ export function ModalCollaborator({
           name={"name"}
           refs={register("name")}
           isRequired
+          defaultValue={collaborator?.name}
         />
 
         <CustomInput
@@ -67,6 +75,7 @@ export function ModalCollaborator({
           name={"email"}
           refs={register("email")}
           isRequired
+          defaultValue={collaborator?.email}
         />
 
         <CustomInput
@@ -77,14 +86,31 @@ export function ModalCollaborator({
           name={"phone"}
           refs={register("phone")}
           isRequired
+          defaultValue={collaborator?.phone}
         />
+
+        {collaborator && (
+          <CustomSelect
+            label="Status"
+            listItems={[
+              { value: "Ativo", label: "Ativo" },
+              { value: "Desativado", label: "Desativado" },
+            ]}
+            onChange={(value) => {
+              setStatusSelected(value);
+            }}
+            isRequired
+            placeholder={collaborator?.status}
+            defaultSelectedKeys={[collaborator?.status]}
+          />
+        )}
 
         <Button
           type="submit"
           color="primary"
           className="text-slate-50 w-full my-5"
         >
-          Cadastrar
+          {collaborator ? "Editar" : "Cadastrar"}
         </Button>
       </S.Form>
     </CustomModal>

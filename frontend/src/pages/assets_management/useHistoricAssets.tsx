@@ -60,7 +60,6 @@ const useHistoricAssets = () => {
     items: collaborators,
   });
 
-
   function convertDate(dateString: Date) {
     const splitDate = dateString.toLocaleDateString().split("/");
 
@@ -161,15 +160,16 @@ const useHistoricAssets = () => {
 
     statusSelected.forEach((value: string) => {
       value === "Alocado"
-        ? statusString = "Alocado"
+        ? (statusString = "Alocado")
         : value === "Manutenção"
-        ? statusString = "Manutenção"
+        ? (statusString = "Manutenção")
         : value === "Disponível"
-        ? statusString = "Disponível"
+        ? (statusString = "Disponível")
         : value === "Desabilitado"
-        ? statusString = "Desabilitado" : null
-    })
-    
+        ? (statusString = "Desabilitado")
+        : null;
+    });
+
     const newRegister: IAssetsHistoric = {
       assetId: asset?.data.id as string,
       collaboratorId: collaborator?.data.id as string,
@@ -191,9 +191,10 @@ const useHistoricAssets = () => {
       setIsModalNewHistoricOpen(false);
       setDateRegister(undefined);
     } else {
-      toast.error(
-        res.errors[0]
-      );
+      res.errors[0].msg
+        ? toast.error(res.errors[0].msg)
+        : toast.error(res.errors[0]);
+
       setDateRegister(undefined);
     }
   };

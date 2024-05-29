@@ -25,7 +25,7 @@ interface Props {
   listComplete: ICollaborators[];
   total: number;
   isLoading: boolean;
-  setIsModalNewCollaboratorOpen: (isOpen: boolean) => void;
+  openModal: (type: string, data?: ICollaborators) => void;
   handleListCollaborators: (page: number) => void;
 }
 
@@ -33,7 +33,7 @@ type Color = "success" | "secondary" | "danger" | "warning";
 
 export function TableCollaborators({
   isLoading,
-  setIsModalNewCollaboratorOpen,
+  openModal,
   listCollaborators,
   listComplete,
   handleListCollaborators,
@@ -126,7 +126,7 @@ export function TableCollaborators({
                 <span
                   className="text-lg cursor-pointer "
                   onClick={() => {
-                    // setAssetEdit(asset), setIsModalNewCollaboratorOpen(true);
+                    openModal("edit", collaborator)
                   }}
                 >
                   <PencilLine size={18} color="#717171" />
@@ -164,7 +164,7 @@ export function TableCollaborators({
               className="bg-foreground text-background"
               endContent={<UserRoundPlus size={16} />}
               size="sm"
-              onClick={() => setIsModalNewCollaboratorOpen(true)}
+              onClick={() => openModal("new")}
             >
               Novo Colaborador
             </Button>
