@@ -25,14 +25,7 @@ import {
   TableRow,
   TableCell,
 } from "@nextui-org/table";
-import {
-  ChevronDown,
-  Circle,
-  Eye,
-  Plus,
-  Search,
-  Trash2,
-} from "lucide-react";
+import { ChevronDown, Circle, Eye, Plus, Search, Trash2 } from "lucide-react";
 import iconPdf from "../../../assets/icons/pdf.png";
 import iconClose from "../../../assets/icons/fechar.png";
 import { StatusAssets } from "../../../enums/statusAssets.enum";
@@ -60,7 +53,7 @@ export function TableComponent({
   const [filterValue, setFilterValue] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
-
+  
   const statusColorMap = {
     Disponível: "success",
     Alocado: "secondary",
@@ -153,14 +146,28 @@ export function TableComponent({
       const cellValue = (asset as any)[columnKey.toString()];
 
       switch (columnKey) {
-        case "uid" ||
-          "description" ||
-          "purchase_date" ||
-          "closing_guarantee" ||
-          "supplier":
+        case "uid" || "description" || "supplier":
           return (
             <div className="flex flex-col items-center">
               <p className="text-bold text-sm capitalize">{cellValue}</p>
+            </div>
+          );
+
+        case "purchaseDate":
+          return (
+            <div className="flex flex-col items-center">
+              <p className="text-bold text-sm capitalize">
+                {new Date(cellValue).toLocaleDateString()}
+              </p>
+            </div>
+          );
+
+        case "closingGuarantee":
+          return (
+            <div className="flex flex-col items-center">
+              <p className="text-bold text-sm capitalize">
+                {new Date(cellValue).toLocaleDateString()}
+              </p>
             </div>
           );
 
@@ -243,7 +250,6 @@ export function TableComponent({
                   <PencilLine size={18} color="#717171" />
                 </span>
               </Tooltip> */}
-
             </div>
           );
         default:

@@ -149,7 +149,6 @@ export function ModalAsset({
           defaultValue={asset?.supplier}
         />
         {!asset ? (
-          <S.DualInput>
             <CustomSelect
               listItems={[
                 { value: "Sim", label: "Sim" },
@@ -160,7 +159,7 @@ export function ModalAsset({
                 setCanAllocated(value);
               }}
             />
-          </S.DualInput>
+
         ) : (
           <CustomSelect
             listItems={[

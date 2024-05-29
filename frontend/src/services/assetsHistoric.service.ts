@@ -52,7 +52,7 @@ export const listAllHistoricAssets = async () => {
 
 export const listLastHistoric = async () => {
   try {
-    const res = await fetch(`${api}/historic?page=1`, {
+    const res = await fetch(`${api}/historic?page=1&take=10`, {
       method: "GET",
       headers: {
         Accept: "application/json",

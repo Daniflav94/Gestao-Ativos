@@ -27,15 +27,15 @@ const useAssets = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingFile, setIsLoadingFile] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [fileInvoice, setFileInvoice] = useState("");
+  const [fileInvoice, setFileInvoice] = useState();
   const [filename, setFilename] = useState("");
   const [canAllocated, setCanAllocated] = useState(new Set([]));
   const [purchaseDateValue, setPurchaseDateValue] = useState(
-    assetEdit ? parseDate(convertDate(assetEdit.purchaseDate)) : undefined
+    assetEdit ? parseDate(convertDate(assetEdit.purchaseDate as Date)) : undefined
   );
 
   const [closingGuaranteeValue, setClosingGuaranteeValue] = useState(
-    assetEdit ? parseDate(convertDate(assetEdit.closingGuarantee)) : undefined
+    assetEdit ? parseDate(convertDate(assetEdit.closingGuarantee as Date)) : undefined
   );
   const [errorDate, setErrorDate] = useState("");
 
@@ -45,10 +45,7 @@ const useAssets = () => {
 
   useEffect(() => {
     if (purchaseDateValue) {
-      setValue(
-        "purchaseDate",
-        purchaseDateValue.toDate(getLocalTimeZone())
-      );
+      setValue("purchaseDate", purchaseDateValue.toDate(getLocalTimeZone()));
     }
 
     if (closingGuaranteeValue) {
@@ -134,24 +131,31 @@ const useAssets = () => {
     const newAsset: IAssets = {
       idClient: data.idClient,
       description: capitalize(data.description),
-      closingGuarantee: data.closingGuarantee,
-      purchaseDate: data.purchaseDate,
+      closingGuarantee: new Date(data.closingGuarantee).toISOString().slice(0, 10),
+      purchaseDate: new Date(data.purchaseDate).toISOString().slice(0, 10),
       observation: data.observation,
       supplier: data.supplier,
       canAllocated: watch("canAllocated"),
       invoice: fileInvoice,
     };
+console.log(newAsset)
+    const formData = new FormData();
+    const keys = Object.keys(newAsset) as Array<keyof typeof newAsset>;
 
-    const res = await createAsset(JSON.parse(JSON.stringify(newAsset)));
+    keys.forEach((key) => {
+      formData.append(key, newAsset[key] as string | Blob);
+    });
 
-    if (res) {
+    const res = await createAsset(formData);
+
+    if (!res.errors) {
       toast.success("Ativo cadastrado com sucesso!");
 
       handleListAssets(0);
       setIsModalOpen(false);
 
       reset();
-      setFileInvoice("");
+      setFileInvoice(undefined);
       setFilename("");
       setPurchaseDateValue(undefined);
       setClosingGuaranteeValue(undefined);

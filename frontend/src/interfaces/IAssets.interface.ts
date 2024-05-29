@@ -4,8 +4,8 @@ export interface IAssets {
     id?: string;
     idClient: string;
     description: string;
-    purchaseDate: Date;
-    closingGuarantee: Date;
+    purchaseDate: Date | string;
+    closingGuarantee: Date | string;
     supplier: string;
     invoice?: string;
     observation?: string;

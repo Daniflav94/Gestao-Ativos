@@ -8,8 +8,6 @@ export const createAsset = async (data: FormData) => {
     const res = await fetch(`${api}/assets`, {
       method: "POST",
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
         Authorization: "Bearer " + token,
       },
       body: data,

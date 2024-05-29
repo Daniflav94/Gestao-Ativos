@@ -39,6 +39,7 @@ export const registerAsset = async (req: Req, res: Response) => {
   const newAsset = await prisma.asset.create({
     data: {
       ...data,
+      canAllocated: data.canAllocated === "true" ? true : false,
       purchaseDate: new Date(data.purchaseDate),
       closingGuarantee: new Date(data.closingGuarantee),
       invoice,

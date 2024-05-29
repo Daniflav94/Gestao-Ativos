@@ -12,7 +12,7 @@ export const assetValidation = () => {
       .withMessage("Data de garantia é obrigatória"),
     body("supplier").isString().withMessage("Descrição é obrigatória"),
     body("canAllocated")
-      .isBoolean()
+      .isString()
       .withMessage("Campo pode ser alocado é obrigatório"),
   ];
 };

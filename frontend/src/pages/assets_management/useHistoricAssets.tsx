@@ -192,8 +192,9 @@ const useHistoricAssets = () => {
       setDateRegister(undefined);
     } else {
       toast.error(
-        "Ocorreu um erro ao registrar ocorrência. Tente novamente mais tarde."
+        res.errors[0]
       );
+      setDateRegister(undefined);
     }
   };
 
