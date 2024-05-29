@@ -110,19 +110,27 @@ export const listAllCollaborators = async (req: Req, res: Response) => {
   }
 
   const page = req.query.page || 1;
-  const take = 8;
-
-  const skip = (Number(page) - 1) * take;
-
-  const collaborators = await prisma.collaborator.findMany({
-    where: { organizationId: user?.organizationId },
-    orderBy: { createdAt: "desc" },
-    skip,
-    take,
-  });
+  const take = Number(req.query.take) || null;
 
   const total = await prisma.collaborator.count();
 
+  let collaborators: Collaborator[] = [];
+
+  if (take) {
+    const skip = (Number(page) - 1) * take;
+
+    collaborators = await prisma.collaborator.findMany({
+      where: { organizationId: user?.organizationId },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take,
+    });
+  } else {
+    collaborators = await prisma.collaborator.findMany({
+      where: { organizationId: user?.organizationId },
+      orderBy: { createdAt: "desc" },
+    });
+  }
   res.status(201).json({
     data: collaborators,
     total,

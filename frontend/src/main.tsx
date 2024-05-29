@@ -6,6 +6,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { Assets } from "./pages/assets/index.tsx";
 import { AssetsManagement } from "./pages/assets_management/index.tsx";
 import { NextUIProvider } from "@nextui-org/react";
+import { Collaborators } from "./pages/collaborators/index.tsx";
 
 const router = createBrowserRouter([
   {
@@ -23,7 +24,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/colaboradores",
-        element: <AssetsManagement />,
+        element: <Collaborators />,
       },
     ],
   },

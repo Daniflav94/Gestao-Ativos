@@ -8,7 +8,7 @@ import {
   listLastHistoric,
 } from "../../services/assetsHistoric.service";
 import { listAll } from "../../services/asset.service";
-import { listAllCollaborators } from "../../services/collaborators.service";
+import { listActiveCollaborators } from "../../services/collaborators.service";
 import { toast } from "sonner";
 import { CalendarDate, parseDate } from "@internationalized/date";
 
@@ -127,7 +127,7 @@ const useHistoricAssets = () => {
   };
 
   const handleListCollaborators = async () => {
-    const res = await listAllCollaborators();
+    const res = await listActiveCollaborators();
 
     if (res.data) {
       const formatCollaborators = res.data.map(

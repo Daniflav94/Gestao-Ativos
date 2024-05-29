@@ -66,11 +66,6 @@ export function AssetsManagement() {
         setStatusSelected={setStatusSelected}
       />
 
-      {/* <ModalCollaborator
-        isOpen={isModalNewCollaboratorOpen}
-        onOpenChange={setIsModalNewCollaboratorOpen}
-        onSubmit={onSubmitCollaborator}
-      /> */}
       <ModalMoreInfoAsset
         isOpen={isModalInfoAssetOpen}
         onOpenChange={setIsModalInfoAssetOpen}

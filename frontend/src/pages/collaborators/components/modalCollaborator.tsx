@@ -40,7 +40,7 @@ export function ModalCollaborator({
 
   useEffect(() => {
     reset();
-  }, [])
+  }, [isOpen])
 
   return (
     <CustomModal

@@ -40,7 +40,7 @@ const useAssets = () => {
   const [errorDate, setErrorDate] = useState("");
 
   useEffect(() => {
-    handleListAssets(0);
+    handleListAssets(1);
   }, []);
 
   useEffect(() => {
@@ -138,7 +138,7 @@ const useAssets = () => {
       canAllocated: watch("canAllocated"),
       invoice: fileInvoice,
     };
-console.log(newAsset)
+
     const formData = new FormData();
     const keys = Object.keys(newAsset) as Array<keyof typeof newAsset>;
 

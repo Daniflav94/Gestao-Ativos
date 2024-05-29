@@ -15,7 +15,6 @@ import {
   PopoverContent,
   PopoverTrigger,
   Spinner,
-  Tooltip,
 } from "@nextui-org/react";
 import {
   Table,
@@ -25,10 +24,11 @@ import {
   TableRow,
   TableCell,
 } from "@nextui-org/table";
-import { ChevronDown, Circle, Eye, Plus, Search, Trash2 } from "lucide-react";
+import { ChevronDown, Circle, Eye, Plus, Search } from "lucide-react";
 import iconPdf from "../../../assets/icons/pdf.png";
 import iconClose from "../../../assets/icons/fechar.png";
 import { StatusAssets } from "../../../enums/statusAssets.enum";
+import { uploads } from "../../../utils/config";
 
 interface Props {
   assetsList: IAssets[];
@@ -157,7 +157,7 @@ export function TableComponent({
           return (
             <div className="flex flex-col items-center">
               <p className="text-bold text-sm capitalize">
-                {new Date(cellValue).toLocaleDateString()}
+                {new Date(cellValue).toLocaleDateString("pt-BR", {timeZone: 'UTC'})}
               </p>
             </div>
           );
@@ -166,7 +166,7 @@ export function TableComponent({
           return (
             <div className="flex flex-col items-center">
               <p className="text-bold text-sm capitalize">
-                {new Date(cellValue).toLocaleDateString()}
+                {new Date(cellValue).toLocaleDateString("pt-BR", {timeZone: 'UTC'})}
               </p>
             </div>
           );
@@ -196,7 +196,7 @@ export function TableComponent({
             <div className="flex flex-col items-center">
               {asset.invoice ? (
                 <a
-                  href={asset.invoice}
+                  href={`${uploads}/${asset.invoice}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -393,7 +393,7 @@ export function TableComponent({
             total={Math.ceil(total / 8)}
             variant="light"
             onChange={(page) => {
-              setPage(page), handleListAssets(page - 1);
+              setPage(page), handleListAssets(page);
             }}
           />
         ) : (
