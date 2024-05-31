@@ -25,7 +25,14 @@ import {
   TableRow,
   TableCell,
 } from "@nextui-org/table";
-import { ChevronDown, Circle, Eye, PencilLine, Plus, Search } from "lucide-react";
+import {
+  ChevronDown,
+  Circle,
+  Eye,
+  PencilLine,
+  Plus,
+  Search,
+} from "lucide-react";
 import iconPdf from "../../../assets/icons/pdf.png";
 import iconClose from "../../../assets/icons/fechar.png";
 import { StatusAssets } from "../../../enums/statusAssets.enum";
@@ -142,6 +149,17 @@ export function TableComponent({
     }
   }, []);
 
+  function verifyClosingGuarantee(date: Date) {
+    const today = new Date().getTime();
+    const dateInTimestamp = date.getTime();
+
+    if (dateInTimestamp > today) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   const renderCell = React.useCallback(
     (asset: IAssets, columnKey: React.Key) => {
       const cellValue = (asset as any)[columnKey.toString()];
@@ -168,7 +186,13 @@ export function TableComponent({
         case "closingGuarantee":
           return (
             <div className="flex flex-col items-center">
-              <p className="text-bold text-sm capitalize">
+              <p
+                className={
+                  verifyClosingGuarantee(new Date(cellValue))
+                    ? "text-bold text-sm capitalize"
+                    : " text-red-600 text-bold text-sm capitalize"
+                }
+              >
                 {new Date(cellValue).toLocaleDateString("pt-BR", {
                   timeZone: "UTC",
                 })}
@@ -229,7 +253,7 @@ export function TableComponent({
                 <PopoverTrigger>
                   <span
                     className={
-                      asset.observation
+                      asset.observation && asset.observation !== "undefined"
                         ? "text-lg cursor-pointer"
                         : "opacity-30"
                     }
@@ -241,7 +265,7 @@ export function TableComponent({
                 <PopoverContent>
                   <div className="px-1 py-2">
                     <div className="text-small font-bold">Observações</div>
-                    <div className="text-tiny">{asset.observation}</div>
+                    <div className="text-tiny">{asset.observation && asset.observation !== "undefined" ? asset.observation : "-"}</div>
                   </div>
                 </PopoverContent>
               </Popover>
@@ -368,7 +392,7 @@ export function TableComponent({
               size="sm"
               onClick={() => openModal("new")}
             >
-              Adicionar novo
+              Novo ativo
             </Button>
           </div>
         </div>

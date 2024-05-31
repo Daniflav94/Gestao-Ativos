@@ -54,7 +54,7 @@ export function AssetsManagement() {
       />
 
       <ModalNewHistoric
-      historicEditing={historicEditing}
+        historicEditing={historicEditing}
         isOpen={isModalNewHistoricOpen}
         onOpenChange={setIsModalNewHistoricOpen}
         assetsAvailable={assetsAvailable}

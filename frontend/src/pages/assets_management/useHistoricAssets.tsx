@@ -164,7 +164,7 @@ const useHistoricAssets = () => {
       observation: data.observation,
       status: status || historicEditing?.status as string,
     }
-    console.log(edit)
+    
     const res = await editRegisterHistoric(historicEditing?.id as string, edit);
 
     if (!res.errors) {

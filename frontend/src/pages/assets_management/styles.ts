@@ -52,6 +52,22 @@ export const IconClose = styled.img`
   }
 `;
 
+export const IconCloseDate
+= styled.img`
+  width: 1rem;
+  position: absolute;
+  right: 3rem;
+  bottom: 0.5rem;
+  z-index: 9999;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+    cursor: pointer;
+    transition: 0.1s ease-in;
+  }
+`;
+
 export const Form = styled.form`
   display: flex;
   flex-direction: column;

@@ -244,7 +244,7 @@ export function ModalNewHistoric({
             defaultSelectedKeys={[historicEditing?.status]}
           />
           {historicEditing && (
-            <Popover placement="bottom-start">
+            <Popover >
               <PopoverTrigger>
                 <span
                   className={"text-lg cursor-pointer absolute right-8 top-4"}

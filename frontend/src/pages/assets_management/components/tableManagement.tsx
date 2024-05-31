@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as S from "../styles";
 
 import {
   Button,
   Chip,
+  DateRangePicker,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -23,12 +24,21 @@ import {
   TableRow,
   TableCell,
 } from "@nextui-org/table";
-import { ChevronDown, Circle, Eye, PencilLine, Plus, Search } from "lucide-react";
+import {
+  ChevronDown,
+  Circle,
+  ClipboardList,
+  Eye,
+  PencilLine,
+  Plus,
+  Search,
+} from "lucide-react";
 import iconClose from "../../../assets/icons/fechar.png";
 import { StatusAssets } from "../../../enums/statusAssets.enum";
 import { IAssetsHistoric } from "../../../interfaces/IAssetsHistoric.interface";
 import { IAssets } from "../../../interfaces/IAssets.interface";
 import { ICollaborators } from "../../../interfaces/ICollaborators.interface";
+import { I18nProvider } from "@react-aria/i18n";
 
 interface Props {
   lastAssetsHistoric: IAssetsHistoric[];
@@ -36,7 +46,7 @@ interface Props {
   isLoading: boolean;
   historicAssetsList: IAssetsHistoric[];
   openModalInfo: (data: IAssets | ICollaborators, type: string) => void;
-  openModal: (type: string, data?: IAssetsHistoric | undefined) => void
+  openModal: (type: string, data?: IAssetsHistoric | undefined) => void;
 }
 
 type Color = "success" | "secondary" | "danger" | "warning";
@@ -51,6 +61,15 @@ export function TableManagement({
 }: Props) {
   const [filterValue, setFilterValue] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [dateInitialFilter, setDateInitialFilter] = useState<
+    Date | undefined
+  >();
+  const [dateFinalFilter, setDateFinalFilter] = useState<Date | undefined>();
+
+  useEffect(() => {
+    setFilterValue("");
+    setStatusFilter("");
+  }, [openModal]);
 
   const statusColorMap = {
     Disponível: "success",
@@ -59,7 +78,11 @@ export function TableManagement({
     Manutenção: "warning",
   };
 
-  const hasSearchFilter = Boolean(filterValue) || Boolean(statusFilter);
+  const hasSearchFilter =
+    Boolean(filterValue) ||
+    Boolean(statusFilter) ||
+    Boolean(dateInitialFilter) ||
+    Boolean(dateFinalFilter);
 
   const columns = [
     {
@@ -89,15 +112,104 @@ export function TableManagement({
 
     { key: "actions", label: "" },
   ];
+
   const statusOptions = ["Disponível", "Alocado", "Desabilitado", "Manutenção"];
 
   const filteredItems = hasSearchFilter
     ? historicAssetsList.filter((asset) => {
-        if (statusFilter != "" && filterValue === "") {
+        if (
+          statusFilter !== "" &&
+          filterValue === "" &&
+          !dateInitialFilter &&
+          !dateFinalFilter
+        ) {
           if (asset.status === statusFilter) {
             return asset;
           }
-        } else if (statusFilter != "" && filterValue !== "") {
+        } else if (
+          dateInitialFilter &&
+          dateFinalFilter &&
+          statusFilter === "" &&
+          filterValue === ""
+        ) {
+          if (
+            new Date(asset.dateRegister) >= dateInitialFilter &&
+            new Date(asset.dateRegister) <= dateFinalFilter
+          ) {
+            return asset;
+          }
+        } else if (
+          statusFilter !== "" &&
+          filterValue !== "" &&
+          dateInitialFilter &&
+          dateFinalFilter
+        ) {
+          let filter1;
+          if (asset.status === statusFilter) {
+            filter1 = asset;
+          }
+
+          if (filter1) {
+            return (
+              (filter1.collaborator?.name
+                .toLowerCase()
+                .includes(filterValue.toLowerCase()) ||
+                filter1.asset?.description
+                  .toLowerCase()
+                  .includes(filterValue.toLowerCase()) ||
+                filter1.asset?.idClient.includes(filterValue)) &&
+              new Date(filter1.dateRegister) >= dateInitialFilter &&
+              new Date(filter1.dateRegister) <= dateFinalFilter
+            );
+          }
+        } else if (
+          statusFilter !== "" &&
+          filterValue === "" &&
+          dateInitialFilter &&
+          dateFinalFilter
+        ) {
+          let filter1;
+          if (asset.status === statusFilter) {
+            filter1 = asset;
+          }
+
+          if (filter1) {
+            return (
+              new Date(filter1.dateRegister) >= dateInitialFilter &&
+              new Date(filter1.dateRegister) <= dateFinalFilter
+            );
+          }
+        } else if (
+          statusFilter === "" &&
+          filterValue !== "" &&
+          dateInitialFilter &&
+          dateFinalFilter
+        ) {
+          let filter1;
+          if (
+            new Date(asset.dateRegister) >= dateInitialFilter &&
+            new Date(asset.dateRegister) <= dateFinalFilter
+          ) {
+            filter1 = asset;
+          }
+
+          if (filter1) {
+            return (
+              filter1.collaborator?.name
+                .toLowerCase()
+                .includes(filterValue.toLowerCase()) ||
+              filter1.asset?.description
+                .toLowerCase()
+                .includes(filterValue.toLowerCase()) ||
+              filter1.asset?.idClient.includes(filterValue)
+            );
+          }
+        } else if (
+          statusFilter !== "" &&
+          filterValue !== "" &&
+          !dateInitialFilter &&
+          !dateFinalFilter
+        ) {
           let filter1;
           if (asset.status === statusFilter) {
             filter1 = asset;
@@ -192,9 +304,7 @@ export function TableManagement({
         case "user":
           return (
             <div className="flex flex-col">
-              <p className="text-bold text-sm capitalize">
-                {asset.user?.name}
-              </p>
+              <p className="text-bold text-sm capitalize">{asset.user?.name}</p>
             </div>
           );
 
@@ -268,96 +378,148 @@ export function TableManagement({
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
-        <div className="flex justify-between gap-3 items-end">
-          <Input
-            isClearable
-            classNames={{
-              base: "w-full sm:max-w-[44%]",
-              inputWrapper: "border-1",
-            }}
-            placeholder="Buscar..."
-            size="sm"
-            startContent={<Search size={20} />}
-            value={filterValue}
-            variant="bordered"
-            onClear={() => setFilterValue("")}
-            onValueChange={onSearchChange}
-          />
-          <div className="flex gap-3 items-center">
+        <div className="flex justify-between gap-3 w-full items-center">
+          <div className="flex gap-3 w-full items-end">
+            <Input
+              isClearable
+              classNames={{
+                base: "w-full sm:max-w-[40%]",
+                inputWrapper: "border-1",
+              }}
+              placeholder="Buscar por ativo, colaborador ou usuário"
+              size="sm"
+              startContent={<Search size={20} />}
+              value={filterValue}
+              variant="bordered"
+              onClear={() => setFilterValue("")}
+              onValueChange={onSearchChange}
+            />
+
             <div className="relative">
-              {statusFilter != "" && (
-                <S.IconClose
+              {dateInitialFilter && (
+                <S.IconCloseDate
                   src={iconClose}
-                  onClick={() => setStatusFilter("")}
+                  onClick={() => {setDateInitialFilter(undefined), setDateFinalFilter(undefined)}}
                 />
               )}
 
-              <Dropdown className="min-w-fit">
-                <DropdownTrigger
-                  className={
-                    statusFilter ? "hidden sm:flex ps-8 " : "hidden sm:flex "
-                  }
-                >
-                  <Button
-                    endContent={<ChevronDown size={20} />}
-                    size="sm"
-                    variant="flat"
-                  >
-                    {statusFilter
-                      ? `Status: ${statusFilter}`
-                      : "Filtrar por Status"}
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  disallowEmptySelection
-                  aria-label="Table Columns"
-                  closeOnSelect={true}
-                  selectedKeys={statusFilter}
-                  selectionMode="single"
-                  hideSelectedIcon
-                  variant="flat"
-                >
-                  {statusOptions.map((status) => (
-                    <DropdownItem
-                      key={status}
-                      className="capitalize"
-                      startContent={
-                        <Circle
-                          size={6}
-                          color={
-                            status === "Disponível"
-                              ? "#17C964"
-                              : status === "Alocado"
-                              ? "#9353D3"
-                              : status === "Manutenção"
-                              ? "#F5A524"
-                              : status === "Desabilitado"
-                              ? "#C20E4D"
-                              : ""
-                          }
-                          fill={
-                            status === "Disponível"
-                              ? "#17C964"
-                              : status === "Alocado"
-                              ? "#9353D3"
-                              : status === "Manutenção"
-                              ? "#F5A524"
-                              : status === "Desabilitado"
-                              ? "#C20E4D"
-                              : ""
-                          }
-                          strokeWidth={1.25}
-                        />
-                      }
-                      onClick={() => setStatusFilter(status)}
-                    >
-                      {capitalize(status)}
-                    </DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </Dropdown>
+              <I18nProvider locale="pt-BR">
+                <DateRangePicker
+                  label="Selecionar período ocorrência"
+
+                  onChange={(value) => {
+                    setDateInitialFilter(
+                      new Date(
+                        value.start.year,
+                        value.start.month - 1,
+                        value.start.day
+                      )
+                    );
+                    setDateFinalFilter(
+                      new Date(
+                        value.end.year,
+                        value.end.month - 1,
+                        value.end.day
+                      )
+                    );
+                  }}
+                  size="sm"
+                  variant="bordered"
+                  labelPlacement="outside"
+                  classNames={{
+                    base: "w-72",
+                    inputWrapper: "border-1 rounded-16",
+                  }}
+                />
+              </I18nProvider>
             </div>
 
+            <div className="flex gap-3 items-center">
+              <div className="relative">
+                {statusFilter != "" && (
+                  <S.IconClose
+                    src={iconClose}
+                    onClick={() => setStatusFilter("")}
+                  />
+                )}
+
+                <Dropdown className="min-w-fit">
+                  <DropdownTrigger
+                    className={
+                      statusFilter ? "hidden sm:flex ps-8 " : "hidden sm:flex "
+                    }
+                  >
+                    <Button
+                      endContent={<ChevronDown size={20} />}
+                      size="sm"
+                      variant="flat"
+                    >
+                      {statusFilter
+                        ? `Status: ${statusFilter}`
+                        : "Filtrar por Status"}
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    disallowEmptySelection
+                    aria-label="Table Columns"
+                    closeOnSelect={true}
+                    selectedKeys={statusFilter}
+                    selectionMode="single"
+                    hideSelectedIcon
+                    variant="flat"
+                  >
+                    {statusOptions.map((status) => (
+                      <DropdownItem
+                        key={status}
+                        className="capitalize"
+                        startContent={
+                          <Circle
+                            size={6}
+                            color={
+                              status === "Disponível"
+                                ? "#17C964"
+                                : status === "Alocado"
+                                ? "#9353D3"
+                                : status === "Manutenção"
+                                ? "#F5A524"
+                                : status === "Desabilitado"
+                                ? "#C20E4D"
+                                : ""
+                            }
+                            fill={
+                              status === "Disponível"
+                                ? "#17C964"
+                                : status === "Alocado"
+                                ? "#9353D3"
+                                : status === "Manutenção"
+                                ? "#F5A524"
+                                : status === "Desabilitado"
+                                ? "#C20E4D"
+                                : ""
+                            }
+                            strokeWidth={1.25}
+                          />
+                        }
+                        onClick={() => setStatusFilter(status)}
+                      >
+                        {capitalize(status)}
+                      </DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-2 items-end h-14">
+            <Button
+              className="bg-primary text-background"
+              endContent={<ClipboardList size={18} />}
+              size="sm"
+              onClick={() => {}}
+            >
+              Gerar relatório
+            </Button>
             <Button
               className="bg-foreground text-background"
               endContent={<Plus />}
@@ -368,6 +530,7 @@ export function TableManagement({
             </Button>
           </div>
         </div>
+
         {hasSearchFilter ? (
           <span className="text-default-400 text-small">
             Encontrados {filteredItems.length} registros

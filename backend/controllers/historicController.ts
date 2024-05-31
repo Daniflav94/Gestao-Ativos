@@ -106,7 +106,7 @@ export const updateAssetHistoric = async (req: Req, res: Response) => {
   const { id } = req.params;
   const data = req.body;
   const idUser = req.user?.id;
-
+console.log(data)
   const assetHistoric = await prisma.assetsHistoric.findUnique({
     where: { id },
   });
