@@ -7,6 +7,9 @@ import {
   AutocompleteItem,
   Button,
   DatePicker,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Textarea,
 } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
@@ -20,16 +23,17 @@ import {
 import { I18nProvider } from "@react-aria/i18n";
 import { CustomSelect } from "../../../components/customSelect";
 import { useFilter } from "@react-aria/i18n";
+import { TriangleAlert } from "lucide-react";
 
 interface Props {
-  data?: IAssetsHistoric;
+  historicEditing?: IAssetsHistoric;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   assetsAvailable: Select[];
   collaborators: Select[];
   handleCreateAssetHistoric: (data: IAssetsHistoric) => void;
   dateRegister?: CalendarDate;
-  setDateRegister?: (date: CalendarDate | undefined) => void;
+  setDateRegister: (date: CalendarDate | undefined) => void;
   convertDate: (dateString: Date) => string;
   statusSelected: Set<never>;
   setStatusSelected: React.Dispatch<React.SetStateAction<Set<never>>>;
@@ -61,7 +65,7 @@ interface Status {
 }
 
 export function ModalNewHistoric({
-  data,
+  historicEditing,
   isOpen,
   onOpenChange,
   assetsAvailable,
@@ -178,13 +182,20 @@ export function ModalNewHistoric({
     setAssetSelected("");
     setDisabledCollaborators(true);
     setListStatus(status);
+
+    if (historicEditing) {
+      setValue("assetId", historicEditing.assetId);
+      setValue("collaboratorId", historicEditing.collaboratorId);
+      setValue("observation", historicEditing.observation);
+      setValue("dateRegister", new Date(historicEditing.dateRegister));
+    }
   }, [isOpen]);
 
   return (
     <CustomModal
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      modalTitle="Nova ocorrência"
+      modalTitle={historicEditing ? "Editar ocorrência" : "Nova ocorrência"}
     >
       <S.Form onSubmit={handleSubmit(onSubmit)}>
         <I18nProvider locale="pt-BR">
@@ -193,7 +204,10 @@ export function ModalNewHistoric({
             variant="bordered"
             minValue={new CalendarDate(1950, 1, 1)}
             value={dateRegister}
-            defaultValue={data && parseDate(convertDate(data.dateRegister))}
+            defaultValue={
+              historicEditing &&
+              parseDate(convertDate(historicEditing.dateRegister))
+            }
             onChange={setDateRegister}
             isRequired
             isInvalid={errorDate && !dateRegister ? true : false}
@@ -211,20 +225,45 @@ export function ModalNewHistoric({
           className="w-full"
           variant="bordered"
           onSelectionChange={(value) => handleStatus(value)}
+          defaultSelectedKey={`${historicEditing?.asset?.idClient} - ${historicEditing?.asset?.description}`}
         >
           {(asset) => (
             <AutocompleteItem key={asset.value}>{asset.label}</AutocompleteItem>
           )}
         </Autocomplete>
 
-        <CustomSelect
-          listItems={listStatus}
-          label="Status"
-          onChange={(value) => {
-            setStatusSelected(value);
-          }}
-          isDisabled={assetSelected === ""}
-        />
+        <div className="w-full relative">
+          <CustomSelect
+            listItems={listStatus}
+            label="Status"
+            onChange={(value) => {
+              setStatusSelected(value);
+            }}
+            isDisabled={assetSelected === ""}
+            placeholder={historicEditing?.status}
+            defaultSelectedKeys={[historicEditing?.status]}
+          />
+          {historicEditing && (
+            <Popover placement="bottom-start">
+              <PopoverTrigger>
+                <span
+                  className={"text-lg cursor-pointer absolute right-8 top-4"}
+                >
+                  <TriangleAlert size={18} color="#7b7b7b" />
+                </span>
+              </PopoverTrigger>
+
+              <PopoverContent>
+                <div className="px-1 py-2">
+                  <div className="text-tiny">
+                    Status não pode ser editado. Caso queira mudar o status, registre
+                    uma nova ocorrência.
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
+        </div>
 
         <Autocomplete
           defaultItems={collaborators}
@@ -235,7 +274,8 @@ export function ModalNewHistoric({
           onSelectionChange={(value) =>
             handleSelectionCollaboratorChange(value)
           }
-          isDisabled={disabledCollaborators}
+          isDisabled={!historicEditing && disabledCollaborators}
+          defaultSelectedKey={historicEditing?.collaborator?.name}
         >
           {(collaborator) => (
             <AutocompleteItem key={collaborator.value}>
@@ -249,7 +289,7 @@ export function ModalNewHistoric({
           variant="bordered"
           minRows={2}
           onChange={(e) => setValue("observation", e.target.value)}
-          defaultValue={data?.observation}
+          defaultValue={historicEditing?.observation}
         />
 
         <Button
@@ -257,7 +297,7 @@ export function ModalNewHistoric({
           color="primary"
           className="text-slate-50 w-full my-5"
         >
-          {data ? "Editar" : "Cadastrar"}
+          {historicEditing ? "Editar" : "Cadastrar"}
         </Button>
       </S.Form>
     </CustomModal>

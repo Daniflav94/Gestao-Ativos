@@ -10,6 +10,7 @@ import { ModalMoreInfoAsset } from "./components/modalMoreInfoAsset";
 
 export function AssetsManagement() {
   const {
+    historicEditing,
     setFieldStateAsset,
     setFieldStateCollaborator,
     lastAssetsHistoric,
@@ -24,6 +25,7 @@ export function AssetsManagement() {
     assetsAvailable,
     collaborators,
     openModalInfo,
+    openModal,
     handleCreateAssetHistoric,
     setIsModalNewHistoricOpen,
     setIsModalInfoAssetOpen,
@@ -47,11 +49,12 @@ export function AssetsManagement() {
         total={total}
         lastAssetsHistoric={lastAssetsHistoric}
         isLoading={isLoading}
-        setIsModalNewHistoricOpen={setIsModalNewHistoricOpen}
+        openModal={openModal}
         openModalInfo={openModalInfo}
       />
 
       <ModalNewHistoric
+      historicEditing={historicEditing}
         isOpen={isModalNewHistoricOpen}
         onOpenChange={setIsModalNewHistoricOpen}
         assetsAvailable={assetsAvailable}

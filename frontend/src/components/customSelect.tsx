@@ -1,5 +1,4 @@
 import { Select, SelectItem } from "@nextui-org/react";
-import { Key } from "react";
 
 export interface Props {
   placeholder?: string;
@@ -11,7 +10,7 @@ export interface Props {
   isRequired?: boolean;
   isDisabled?: boolean;
   onChange(value: any): void;
-  defaultSelectedKeys?: any
+  defaultSelectedKeys?: any;
 }
 
 export function CustomSelect(props: Props) {

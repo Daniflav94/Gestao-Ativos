@@ -67,7 +67,7 @@ export const listLastHistoric = async () => {
   }
 };
 
-export const editRegisterHistoric = async (id: string, asset: IAssetsHistoric) => {
+export const editRegisterHistoric = async (id: string, data: IAssetsHistoric) => {
   try {
     const res = await fetch(`${api}/historic/${id}`, {
       method: "PUT",
@@ -76,7 +76,7 @@ export const editRegisterHistoric = async (id: string, asset: IAssetsHistoric) =
         "Content-Type": "application/json",
         Authorization: "Bearer " + token,
       },
-      body: JSON.stringify(asset),
+      body: JSON.stringify(data),
     });
 
     return res.json();

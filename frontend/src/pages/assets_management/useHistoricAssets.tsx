@@ -4,6 +4,7 @@ import { ICollaborators } from "../../interfaces/ICollaborators.interface";
 import { IAssets } from "../../interfaces/IAssets.interface";
 import {
   createAssetHistoric,
+  editRegisterHistoric,
   listAllHistoricAssets,
   listLastHistoric,
 } from "../../services/assetsHistoric.service";
@@ -22,7 +23,7 @@ const useHistoricAssets = () => {
   const [lastAssetsHistoric, setLastAssetsHistoric] = useState<
     IAssetsHistoric[]
   >([]);
-  const [data, setData] = useState<IAssetsHistoric>();
+  const [historicEditing, setHistoricEditing] = useState<IAssetsHistoric>();
   const [historicAssetsList, setHistoricAssetsList] = useState<
     IAssetsHistoric[]
   >([]);
@@ -38,7 +39,7 @@ const useHistoricAssets = () => {
   const [viewInfoCollaborator, setViewInfoCollaborator] =
     useState<ICollaborators>();
   const [dateRegister, setDateRegister] = useState<CalendarDate | undefined>(
-    data ? parseDate(convertDate(data.dateRegister)) : undefined
+    historicEditing ? parseDate(convertDate(historicEditing.dateRegister)) : undefined
   );
   const [statusSelected, setStatusSelected] = useState(new Set([]));
 
@@ -91,6 +92,16 @@ const useHistoricAssets = () => {
     }
   };
 
+  const openModal = (type: string, data?: IAssetsHistoric) => {
+    if (type === "new") {
+      setHistoricEditing(undefined);
+      setIsModalNewHistoricOpen(true);
+    } else {
+      setHistoricEditing(data);
+      setIsModalNewHistoricOpen(true);
+    }
+  };
+
   const handleListAllHistoricAssets = async () => {
     setIsLoading(true);
     const res = await listLastHistoric();
@@ -116,7 +127,7 @@ const useHistoricAssets = () => {
       const formatAssets = res.data.map(
         (asset: { idClient: any; description: any }) => {
           return {
-            value: asset.idClient,
+            value: `${asset.idClient} - ${asset.description}`,
             label: `${asset.idClient} - ${asset.description}`,
             data: asset,
           };
@@ -144,6 +155,35 @@ const useHistoricAssets = () => {
     }
   };
 
+  const updateHistoricAsset = async(data: IAssetsHistoric, assetId?: string, collaboratorId?: string, status?: string) => {
+    
+    const edit: IAssetsHistoric = {
+      assetId: assetId || historicEditing?.assetId as string,
+      collaboratorId: collaboratorId || historicEditing?.collaboratorId as string,
+      dateRegister: new Date(data.dateRegister),
+      observation: data.observation,
+      status: status || historicEditing?.status as string,
+    }
+    console.log(edit)
+    const res = await editRegisterHistoric(historicEditing?.id as string, edit);
+
+    if (!res.errors) {
+      toast.success("Ativo editado!");
+
+      handleListAllHistoricAssets();
+      handleListAssets();
+      setIsModalNewHistoricOpen(false);
+      setDateRegister(undefined);
+    } else {
+      res.errors[0].msg
+        ? toast.error(res.errors[0].msg)
+        : toast.error(res.errors[0]);
+
+      setDateRegister(undefined);
+    }
+  };
+
+
   const handleCreateAssetHistoric = async (data: IAssetsHistoric) => {
     const asset = assetsAvailable.find((item) => {
       if (item.value === fieldStateAsset.selectedKey) {
@@ -170,6 +210,12 @@ const useHistoricAssets = () => {
         ? (statusString = "Desabilitado")
         : null;
     });
+
+    if(historicEditing){
+      updateHistoricAsset(data, asset?.data.id, collaborator?.data.id, statusString);
+
+      return
+    }
 
     const newRegister: IAssetsHistoric = {
       assetId: asset?.data.id as string,
@@ -201,6 +247,7 @@ const useHistoricAssets = () => {
   };
 
   return {
+    historicEditing,
     setFieldStateAsset,
     setFieldStateCollaborator,
     lastAssetsHistoric,
@@ -219,6 +266,7 @@ const useHistoricAssets = () => {
     setIsModalNewHistoricOpen,
     setIsModalInfoAssetOpen,
     setIsModalInfoCollaboratorOpen,
+    openModal,
     dateRegister,
     setDateRegister,
     convertDate,

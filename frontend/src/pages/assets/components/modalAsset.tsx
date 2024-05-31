@@ -75,19 +75,20 @@ export function ModalAsset({
   useEffect(() => {
     reset();
 
-    if(asset){
-      setValue("canAllocated", asset.canAllocated)
-      setValue("closingGuarantee", asset.closingGuarantee)
-      setValue("purchaseDate", asset.purchaseDate)
-      setValue("description", asset.description)
-      setValue("idClient", asset.idClient)
-      setValue("observation", asset.observation)
-      setValue("supplier", asset.supplier)
+    if (asset) {
+      setValue("canAllocated", asset.canAllocated);
+      setValue("closingGuarantee", asset.closingGuarantee);
+      setValue("purchaseDate", asset.purchaseDate);
+      setValue("description", asset.description);
+      setValue("idClient", asset.idClient);
+      setValue("observation", asset.observation);
+      setValue("supplier", asset.supplier);
 
-      setPurchaseDateValue(parseDate(convertDate(asset.purchaseDate as Date)))
-      setClosingGuaranteeValue(parseDate(convertDate(asset.closingGuarantee as Date)))
+      setPurchaseDateValue(parseDate(convertDate(asset.purchaseDate as Date)));
+      setClosingGuaranteeValue(
+        parseDate(convertDate(asset.closingGuarantee as Date))
+      );
     }
-
   }, [isOpen]);
 
   return (
@@ -105,7 +106,6 @@ export function ModalAsset({
           name={"idClient"}
           refs={register("idClient")}
           isRequired
-  
         />
 
         <CustomInput
@@ -116,7 +116,6 @@ export function ModalAsset({
           name={"description"}
           refs={register("description")}
           isRequired
-          
         />
 
         <S.DualInput>
@@ -141,7 +140,7 @@ export function ModalAsset({
               label="Encerramento garantia"
               variant="bordered"
               minValue={new CalendarDate(1950, 1, 1)}
-              value={closingGuaranteeValue}       
+              value={closingGuaranteeValue}
               onChange={setClosingGuaranteeValue}
               isRequired
               isInvalid={errorDate && !closingGuaranteeValue ? true : false}
@@ -160,7 +159,6 @@ export function ModalAsset({
           name={"supplier"}
           refs={register("supplier")}
           isRequired
-
         />
 
         <CustomSelect
@@ -200,7 +198,6 @@ export function ModalAsset({
           variant="bordered"
           minRows={2}
           onChange={(e) => setValue("observation", e.target.value)}
-
         />
 
         <Button

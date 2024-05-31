@@ -159,15 +159,16 @@ export const updateAssetHistoric = async (req: Req, res: Response) => {
       });
       return;
     } else {
-      await prisma.asset.update({
+     const updateAsset = await prisma.asset.update({
         where: { id: data.assetId },
         data: { status: data.status, updatedAt: new Date() },
       });
-
-      await prisma.asset.update({
+      console.log("edição ativo novo:", updateAsset)
+      const updateAssetPrevious = await prisma.asset.update({
         where: { id: assetHistoric.assetId },
         data: { status: assetHistoric.previousStatus, updatedAt: new Date() },
       });
+      console.log("edição ativo anterior:", updateAssetPrevious)
     }
   }
 
@@ -175,11 +176,12 @@ export const updateAssetHistoric = async (req: Req, res: Response) => {
     where: { id },
     data: {
       dateRegister: new Date(data.dateRegister),
-      previousStatus: asset.status,
+      previousStatus: asset.id !== assetHistoric.assetId ? asset.status : assetHistoric.previousStatus,
       status: data.status,
       createdBy: idUser as string,
       assetId: data.assetId,
       collaboratorId: data.collaboratorId,
+      observation: data.observation,
       updatedAt: new Date(),
     },
   });

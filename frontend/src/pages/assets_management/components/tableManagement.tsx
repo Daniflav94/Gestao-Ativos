@@ -13,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
   Spinner,
+  Tooltip,
 } from "@nextui-org/react";
 import {
   Table,
@@ -22,7 +23,7 @@ import {
   TableRow,
   TableCell,
 } from "@nextui-org/table";
-import { ChevronDown, Circle, Eye, Plus, Search } from "lucide-react";
+import { ChevronDown, Circle, Eye, PencilLine, Plus, Search } from "lucide-react";
 import iconClose from "../../../assets/icons/fechar.png";
 import { StatusAssets } from "../../../enums/statusAssets.enum";
 import { IAssetsHistoric } from "../../../interfaces/IAssetsHistoric.interface";
@@ -33,9 +34,9 @@ interface Props {
   lastAssetsHistoric: IAssetsHistoric[];
   total: number;
   isLoading: boolean;
-  setIsModalNewHistoricOpen: (isOpen: boolean) => void;
   historicAssetsList: IAssetsHistoric[];
   openModalInfo: (data: IAssets | ICollaborators, type: string) => void;
+  openModal: (type: string, data?: IAssetsHistoric | undefined) => void
 }
 
 type Color = "success" | "secondary" | "danger" | "warning";
@@ -43,10 +44,10 @@ type Color = "success" | "secondary" | "danger" | "warning";
 export function TableManagement({
   lastAssetsHistoric,
   isLoading,
-  setIsModalNewHistoricOpen,
   historicAssetsList,
   total,
   openModalInfo,
+  openModal,
 }: Props) {
   const [filterValue, setFilterValue] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -241,16 +242,16 @@ export function TableManagement({
                   </div>
                 </PopoverContent>
               </Popover>
-              {/* <Tooltip className="bg-slate-100 " content="Editar" size="sm">
+              <Tooltip className="bg-slate-100 " content="Editar" size="sm">
                 <span
                   className="text-lg cursor-pointer "
                   onClick={() => {
-                    setAssetEdit(asset), setIsModalEditOpen(true);
+                    openModal("edit", asset);
                   }}
                 >
                   <PencilLine size={18} color="#717171" />
                 </span>
-              </Tooltip> */}
+              </Tooltip>
             </div>
           );
         default:
@@ -361,7 +362,7 @@ export function TableManagement({
               className="bg-foreground text-background"
               endContent={<Plus />}
               size="sm"
-              onClick={() => setIsModalNewHistoricOpen(true)}
+              onClick={() => openModal("new")}
             >
               Nova ocorrência
             </Button>
