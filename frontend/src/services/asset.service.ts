@@ -1,5 +1,5 @@
-import { api } from "../utils/config";
 import { IAssets } from "../interfaces/IAssets.interface";
+import { api } from "../utils/config";
 
 const token = localStorage.getItem("token");
 
@@ -63,6 +63,22 @@ export const editAsset = async (id: string, asset: IAssets) => {
         Authorization: "Bearer " + token,
       },
       body: JSON.stringify(asset),
+    });
+
+    return res.json();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const editFile = async (id: string, file: FormData) => {
+  try {
+    const res = await fetch(`${api}/assets/file/${id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+      body: file,
     });
 
     return res.json();

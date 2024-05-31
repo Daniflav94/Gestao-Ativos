@@ -63,7 +63,6 @@ export const registerAsset = async (req: Req, res: Response) => {
 export const updateAsset = async (req: Request, res: Response) => {
   const { id } = req.params;
   const data = req.body;
-  const invoice = req.file?.filename;
 
   const asset = await prisma.asset.findUnique({ where: { id } });
 
@@ -78,15 +77,51 @@ export const updateAsset = async (req: Request, res: Response) => {
       ...data,
       purchaseDate: new Date(data.purchaseDate),
       closingGuarantee: new Date(data.closingGuarantee),
-      invoice,
       updatedAt: new Date(),
     },
   });
+
+  if (!update) {
+    res
+      .status(500)
+      .json({ errors: ["Houve um erro, tente novamente mais tarde."] });
+    return;
+  }
 
   res.status(201).json({
     data: update,
   });
 };
+
+export const updateFileAsset = async(req: Request, res: Response) => {
+  const { id } = req.params;
+  const invoice = req.file?.filename;
+
+  const asset = await prisma.asset.findUnique({ where: { id } });
+
+  if (!asset) {
+    res.status(500).json({ errors: ["Ativo não encontrado."] });
+    return;
+  }
+
+  const update = await prisma.asset.update({
+    where: { id },
+    data: {
+      invoice,
+      updatedAt: new Date(),
+    },
+  });
+
+  if (!update) {
+    res
+      .status(500)
+      .json({ errors: ["Houve um erro, tente novamente mais tarde."] });
+    return;
+  }
+
+  res.status(201).json("Nota fiscal editada com sucesso.");
+
+}
 
 export const listAllAssets = async (req: Req, res: Response) => {
   const idUser = req.user?.id;

@@ -4,6 +4,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
 import {
   createAsset,
+  editAsset,
+  editFile,
   listAll,
   listAllWithPagination,
 } from "../../services/asset.service";
@@ -60,8 +62,22 @@ const useAssets = () => {
     }
   }, [purchaseDateValue, closingGuaranteeValue]);
 
+  const openModal = (type: string, asset?: IAssets) => {
+    if (type === "new") {
+      setAssetEdit(undefined);
+      setIsModalOpen(true);
+    } else {
+      setAssetEdit(asset);
+      setIsModalOpen(true);
+    }
+  };
+
   function convertDate(dateString: Date) {
-    const splitDate = dateString.toLocaleDateString().split("/");
+    const splitDate = new Date(dateString)
+      .toLocaleDateString("pt-BR", {
+        timeZone: "UTC",
+      })
+      .split("/");
 
     const newDate = new Date(
       Number(splitDate[2]),
@@ -112,27 +128,29 @@ const useAssets = () => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
-  const onSubmit: SubmitHandler<IAssets> = async (data) => {
-    const isAssetExist = assetsList.some(
-      (asset) => data.idClient === asset.idClient
-    );
-
-    if (isAssetExist) {
-      return toast.error("Id já cadastrado!");
-    }
-    if (!data.purchaseDate || !data.closingGuarantee) {
-      setErrorDate("Preencha este campo");
-
-      return;
-    }
-
+  const handleUpdateAsset: SubmitHandler<IAssets> = async (data) => {
     canAllocated.forEach((value) => {
       value === "Sim"
         ? setValue("canAllocated", true)
         : setValue("canAllocated", false);
     });
 
-    const newAsset: IAssets = {
+    if (fileInvoice) {
+      const newFile = {
+        invoice: fileInvoice,
+      };
+      const formData = new FormData();
+      const keys = Object.keys(newFile) as Array<keyof typeof newFile>;
+
+      keys.forEach((key) => {
+        formData.append(key, newFile[key] as string | Blob);
+      });
+      
+      await editFile(assetEdit?.id as string, formData);
+
+    }
+
+    const edit: IAssets = {
       idClient: data.idClient,
       description: capitalize(data.description),
       closingGuarantee: new Date(data.closingGuarantee)
@@ -142,20 +160,12 @@ const useAssets = () => {
       observation: data.observation,
       supplier: data.supplier,
       canAllocated: watch("canAllocated"),
-      invoice: fileInvoice,
     };
 
-    const formData = new FormData();
-    const keys = Object.keys(newAsset) as Array<keyof typeof newAsset>;
-
-    keys.forEach((key) => {
-      formData.append(key, newAsset[key] as string | Blob);
-    });
-
-    const res = await createAsset(formData);
+    const res = await editAsset(assetEdit?.id as string, edit);
 
     if (!res.errors) {
-      toast.success("Ativo cadastrado com sucesso!");
+      toast.success("Ativo editado!");
 
       handleListAssets(0);
       setIsModalOpen(false);
@@ -172,6 +182,70 @@ const useAssets = () => {
     }
   };
 
+  const onSubmit: SubmitHandler<IAssets> = async (data) => {
+    if (!assetEdit) {
+      const isAssetExist = assetsList.some(
+        (asset) => data.idClient === asset.idClient
+      );
+
+      if (isAssetExist) {
+        return toast.error("Id já cadastrado!");
+      }
+      if (!data.purchaseDate || !data.closingGuarantee) {
+        setErrorDate("Preencha este campo");
+
+        return;
+      }
+
+      canAllocated.forEach((value) => {
+        value === "Sim"
+          ? setValue("canAllocated", true)
+          : setValue("canAllocated", false);
+      });
+
+      const newAsset: IAssets = {
+        idClient: data.idClient,
+        description: capitalize(data.description),
+        closingGuarantee: new Date(data.closingGuarantee)
+          .toISOString()
+          .slice(0, 10),
+        purchaseDate: new Date(data.purchaseDate).toISOString().slice(0, 10),
+        observation: data.observation,
+        supplier: data.supplier,
+        canAllocated: watch("canAllocated"),
+        invoice: fileInvoice,
+      };
+
+      const formData = new FormData();
+      const keys = Object.keys(newAsset) as Array<keyof typeof newAsset>;
+
+      keys.forEach((key) => {
+        formData.append(key, newAsset[key] as string | Blob);
+      });
+
+      const res = await createAsset(formData);
+
+      if (!res.errors) {
+        toast.success("Ativo cadastrado com sucesso!");
+
+        handleListAssets(0);
+        setIsModalOpen(false);
+
+        reset();
+        setFileInvoice(undefined);
+        setFilename("");
+        setPurchaseDateValue(undefined);
+        setClosingGuaranteeValue(undefined);
+      } else {
+        res.errors[0].msg
+          ? toast.error(res.errors[0].msg)
+          : toast.error(res.errors[0]);
+      }
+    } else {
+      handleUpdateAsset(data);
+    }
+  };
+
   return {
     assetsList,
     listAllAssets,
@@ -182,6 +256,7 @@ const useAssets = () => {
     filename,
     isModalOpen,
     setIsModalOpen,
+    openModal,
     assetEdit,
     setAssetEdit,
     handleFile,

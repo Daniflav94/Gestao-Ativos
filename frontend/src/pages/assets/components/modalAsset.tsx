@@ -40,8 +40,12 @@ interface Props {
   setCanAllocated: React.Dispatch<React.SetStateAction<Set<never>>>;
   purchaseDateValue?: CalendarDate;
   closingGuaranteeValue?: CalendarDate;
-  setPurchaseDateValue: React.Dispatch<React.SetStateAction<CalendarDate | undefined>>;
-  setClosingGuaranteeValue: React.Dispatch<React.SetStateAction<CalendarDate | undefined>>
+  setPurchaseDateValue: React.Dispatch<
+    React.SetStateAction<CalendarDate | undefined>
+  >;
+  setClosingGuaranteeValue: React.Dispatch<
+    React.SetStateAction<CalendarDate | undefined>
+  >;
   convertDate: (date: Date) => string;
   errorDate?: string;
 }
@@ -70,13 +74,27 @@ export function ModalAsset({
 }: Props) {
   useEffect(() => {
     reset();
-  }, []);
+
+    if(asset){
+      setValue("canAllocated", asset.canAllocated)
+      setValue("closingGuarantee", asset.closingGuarantee)
+      setValue("purchaseDate", asset.purchaseDate)
+      setValue("description", asset.description)
+      setValue("idClient", asset.idClient)
+      setValue("observation", asset.observation)
+      setValue("supplier", asset.supplier)
+
+      setPurchaseDateValue(parseDate(convertDate(asset.purchaseDate as Date)))
+      setClosingGuaranteeValue(parseDate(convertDate(asset.closingGuarantee as Date)))
+    }
+
+  }, [isOpen]);
 
   return (
     <CustomModal
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      modalTitle="Cadastrar ativo"
+      modalTitle={asset ? "Editar ativo" : "Cadastrar ativo"}
     >
       <S.Form onSubmit={handleSubmit(onSubmit)}>
         <CustomInput
@@ -87,7 +105,7 @@ export function ModalAsset({
           name={"idClient"}
           refs={register("idClient")}
           isRequired
-          defaultValue={asset?.idClient}
+  
         />
 
         <CustomInput
@@ -98,7 +116,7 @@ export function ModalAsset({
           name={"description"}
           refs={register("description")}
           isRequired
-          defaultValue={asset?.description}
+          
         />
 
         <S.DualInput>
@@ -109,7 +127,6 @@ export function ModalAsset({
               minValue={new CalendarDate(1950, 1, 1)}
               maxValue={today(getLocalTimeZone())}
               value={purchaseDateValue}
-              defaultValue={asset && parseDate(convertDate(asset.purchaseDate))}
               onChange={setPurchaseDateValue}
               isInvalid={errorDate && !purchaseDateValue ? true : false}
               errorMessage={errorDate && !purchaseDateValue && errorDate}
@@ -124,10 +141,7 @@ export function ModalAsset({
               label="Encerramento garantia"
               variant="bordered"
               minValue={new CalendarDate(1950, 1, 1)}
-              value={closingGuaranteeValue}
-              defaultValue={
-                asset && parseDate(convertDate(asset.closingGuarantee))
-              }
+              value={closingGuaranteeValue}       
               onChange={setClosingGuaranteeValue}
               isRequired
               isInvalid={errorDate && !closingGuaranteeValue ? true : false}
@@ -146,31 +160,21 @@ export function ModalAsset({
           name={"supplier"}
           refs={register("supplier")}
           isRequired
-          defaultValue={asset?.supplier}
-        />
-        {!asset ? (
-            <CustomSelect
-              listItems={[
-                { value: "Sim", label: "Sim" },
-                { value: "Não", label: "Não" },
-              ]}
-              label="Pode ser alocado?"
-              onChange={(value) => {
-                setCanAllocated(value);
-              }}
-            />
 
-        ) : (
-          <CustomSelect
-            listItems={[
-              { value: "Sim", label: "Sim" },
-              { value: "Não", label: "Não" },
-            ]}
-            label="Pode ser alocado?"
-            onChange={(value) => setCanAllocated(value)}
-            placeholder={asset.canAllocated === true ? "Sim" : "Não"}
-          />
-        )}
+        />
+
+        <CustomSelect
+          listItems={[
+            { value: "Sim", label: "Sim" },
+            { value: "Não", label: "Não" },
+          ]}
+          label="Pode ser alocado?"
+          onChange={(value) => {
+            setCanAllocated(value);
+          }}
+          placeholder={asset?.canAllocated ? "Sim" : "Não"}
+          defaultSelectedKeys={[asset?.canAllocated ? "Sim" : "Não"]}
+        />
 
         <S.InputFile>
           <S.ContentInputFile>
@@ -196,7 +200,7 @@ export function ModalAsset({
           variant="bordered"
           minRows={2}
           onChange={(e) => setValue("observation", e.target.value)}
-          defaultValue={asset?.observation}
+
         />
 
         <Button

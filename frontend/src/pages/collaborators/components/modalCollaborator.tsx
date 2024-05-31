@@ -48,7 +48,7 @@ export function ModalCollaborator({
       setValue("phone", collaborator.phone);
     }
   }, [isOpen, collaborator]);
-  console.log(collaborator);
+
   return (
     <CustomModal
       isOpen={isOpen}

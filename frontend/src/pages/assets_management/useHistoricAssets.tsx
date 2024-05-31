@@ -61,7 +61,8 @@ const useHistoricAssets = () => {
   });
 
   function convertDate(dateString: Date) {
-    const splitDate = dateString.toLocaleDateString().split("/");
+    const splitDate = new Date(dateString).toLocaleDateString("pt-BR", {
+      timeZone: "UTC"}).split("/");
 
     const newDate = new Date(
       Number(splitDate[2]),

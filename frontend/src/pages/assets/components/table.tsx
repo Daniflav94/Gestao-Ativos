@@ -15,6 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
   Spinner,
+  Tooltip,
 } from "@nextui-org/react";
 import {
   Table,
@@ -24,7 +25,7 @@ import {
   TableRow,
   TableCell,
 } from "@nextui-org/table";
-import { ChevronDown, Circle, Eye, Plus, Search } from "lucide-react";
+import { ChevronDown, Circle, Eye, PencilLine, Plus, Search } from "lucide-react";
 import iconPdf from "../../../assets/icons/pdf.png";
 import iconClose from "../../../assets/icons/fechar.png";
 import { StatusAssets } from "../../../enums/statusAssets.enum";
@@ -35,7 +36,7 @@ interface Props {
   total: number;
   isLoading: boolean;
   setAssetEdit: (data: IAssets) => void;
-  setIsModalOpen: (isOpen: boolean) => void;
+  openModal: (type: string, asset?: IAssets) => void;
   handleListAssets: (page: number) => void;
   listComplete: IAssets[];
 }
@@ -45,7 +46,7 @@ type Color = "success" | "secondary" | "danger" | "warning";
 export function TableComponent({
   assetsList,
   isLoading,
-  setIsModalOpen,
+  openModal,
   handleListAssets,
   listComplete,
   total,
@@ -53,7 +54,7 @@ export function TableComponent({
   const [filterValue, setFilterValue] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
-  
+
   const statusColorMap = {
     Disponível: "success",
     Alocado: "secondary",
@@ -157,7 +158,9 @@ export function TableComponent({
           return (
             <div className="flex flex-col items-center">
               <p className="text-bold text-sm capitalize">
-                {new Date(cellValue).toLocaleDateString("pt-BR", {timeZone: 'UTC'})}
+                {new Date(cellValue).toLocaleDateString("pt-BR", {
+                  timeZone: "UTC",
+                })}
               </p>
             </div>
           );
@@ -166,7 +169,9 @@ export function TableComponent({
           return (
             <div className="flex flex-col items-center">
               <p className="text-bold text-sm capitalize">
-                {new Date(cellValue).toLocaleDateString("pt-BR", {timeZone: 'UTC'})}
+                {new Date(cellValue).toLocaleDateString("pt-BR", {
+                  timeZone: "UTC",
+                })}
               </p>
             </div>
           );
@@ -240,16 +245,16 @@ export function TableComponent({
                   </div>
                 </PopoverContent>
               </Popover>
-              {/* <Tooltip className="bg-slate-100 " content="Editar" size="sm">
+              <Tooltip className="bg-slate-100 " content="Editar" size="sm">
                 <span
                   className="text-lg cursor-pointer "
                   onClick={() => {
-                    setAssetEdit(asset), setIsModalOpen(true);
+                    openModal("edit", asset);
                   }}
                 >
                   <PencilLine size={18} color="#717171" />
                 </span>
-              </Tooltip> */}
+              </Tooltip>
             </div>
           );
         default:
@@ -282,84 +287,86 @@ export function TableComponent({
             onValueChange={onSearchChange}
           />
           <div className="flex gap-3 items-center">
-            {statusFilter != "" && (
-              <S.IconClose
-                src={iconClose}
-                onClick={() => setStatusFilter("")}
-              />
-            )}
+            <div className="relative">
+              {statusFilter != "" && (
+                <S.IconClose
+                  src={iconClose}
+                  onClick={() => setStatusFilter("")}
+                />
+              )}
 
-            <Dropdown className="min-w-fit">
-              <DropdownTrigger
-                className={
-                  statusFilter ? "hidden sm:flex ps-8 " : "hidden sm:flex "
-                }
-              >
-                <Button
-                  endContent={<ChevronDown size={20} />}
-                  size="sm"
+              <Dropdown className="min-w-fit">
+                <DropdownTrigger
+                  className={
+                    statusFilter ? "hidden sm:flex ps-8 " : "hidden sm:flex "
+                  }
+                >
+                  <Button
+                    endContent={<ChevronDown size={20} />}
+                    size="sm"
+                    variant="flat"
+                  >
+                    {statusFilter
+                      ? `Status: ${statusFilter}`
+                      : "Filtrar por Status"}
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  disallowEmptySelection
+                  aria-label="Table Columns"
+                  closeOnSelect={true}
+                  selectedKeys={statusFilter}
+                  selectionMode="single"
+                  hideSelectedIcon
                   variant="flat"
                 >
-                  {statusFilter
-                    ? `Status: ${statusFilter}`
-                    : "Filtrar por Status"}
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={true}
-                selectedKeys={statusFilter}
-                selectionMode="single"
-                hideSelectedIcon
-                variant="flat"
-              >
-                {statusOptions.map((status) => (
-                  <DropdownItem
-                    key={status}
-                    className="capitalize"
-                    startContent={
-                      <Circle
-                        size={6}
-                        color={
-                          status === "Disponível"
-                            ? "#17C964"
-                            : status === "Alocado"
-                            ? "#9353D3"
-                            : status === "Manutenção"
-                            ? "#F5A524"
-                            : status === "Desabilitado"
-                            ? "#C20E4D"
-                            : ""
-                        }
-                        fill={
-                          status === "Disponível"
-                            ? "#17C964"
-                            : status === "Alocado"
-                            ? "#9353D3"
-                            : status === "Manutenção"
-                            ? "#F5A524"
-                            : status === "Desabilitado"
-                            ? "#C20E4D"
-                            : ""
-                        }
-                        strokeWidth={1.25}
-                      />
-                    }
-                    onClick={() => setStatusFilter(status)}
-                  >
-                    {capitalize(status)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
+                  {statusOptions.map((status) => (
+                    <DropdownItem
+                      key={status}
+                      className="capitalize"
+                      startContent={
+                        <Circle
+                          size={6}
+                          color={
+                            status === "Disponível"
+                              ? "#17C964"
+                              : status === "Alocado"
+                              ? "#9353D3"
+                              : status === "Manutenção"
+                              ? "#F5A524"
+                              : status === "Desabilitado"
+                              ? "#C20E4D"
+                              : ""
+                          }
+                          fill={
+                            status === "Disponível"
+                              ? "#17C964"
+                              : status === "Alocado"
+                              ? "#9353D3"
+                              : status === "Manutenção"
+                              ? "#F5A524"
+                              : status === "Desabilitado"
+                              ? "#C20E4D"
+                              : ""
+                          }
+                          strokeWidth={1.25}
+                        />
+                      }
+                      onClick={() => setStatusFilter(status)}
+                    >
+                      {capitalize(status)}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            </div>
 
             <Button
               className="bg-foreground text-background"
               endContent={<Plus />}
               color="primary"
               size="sm"
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => openModal("new")}
             >
               Adicionar novo
             </Button>

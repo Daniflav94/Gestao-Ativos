@@ -15,6 +15,7 @@ export function Assets() {
     filename,
     isModalOpen,
     setIsModalOpen,
+    openModal,
     assetEdit,
     setAssetEdit,
     handleFile,
@@ -48,7 +49,7 @@ export function Assets() {
         total={total}
         handleListAssets={handleListAssets}
         isLoading={isLoading}
-        setIsModalOpen={setIsModalOpen}
+        openModal={openModal}
         setAssetEdit={setAssetEdit}
       />
 
