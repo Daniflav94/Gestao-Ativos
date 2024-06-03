@@ -5,6 +5,7 @@ import {
   Button,
   Chip,
   DateRangePicker,
+  DateValue,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -13,6 +14,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  RangeValue,
   Spinner,
   Tooltip,
 } from "@nextui-org/react";
@@ -65,6 +67,8 @@ export function TableManagement({
     Date | undefined
   >();
   const [dateFinalFilter, setDateFinalFilter] = useState<Date | undefined>();
+  const [valueDateRange, setValueDateRange] =
+    React.useState<RangeValue<DateValue>>();
 
   useEffect(() => {
     setFilterValue("");
@@ -399,14 +403,18 @@ export function TableManagement({
               {dateInitialFilter && (
                 <S.IconCloseDate
                   src={iconClose}
-                  onClick={() => {setDateInitialFilter(undefined), setDateFinalFilter(undefined)}}
+                  onClick={() => {
+                    setDateInitialFilter(undefined);
+                    setDateFinalFilter(undefined);
+                    setValueDateRange(undefined);
+                  }}
                 />
               )}
 
               <I18nProvider locale="pt-BR">
                 <DateRangePicker
                   label="Selecionar período ocorrência"
-
+                  value={valueDateRange ? valueDateRange : null}
                   onChange={(value) => {
                     setDateInitialFilter(
                       new Date(
@@ -422,6 +430,7 @@ export function TableManagement({
                         value.end.day
                       )
                     );
+                    setValueDateRange(value);
                   }}
                   size="sm"
                   variant="bordered"
