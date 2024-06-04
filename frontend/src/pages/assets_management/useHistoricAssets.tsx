@@ -39,9 +39,12 @@ const useHistoricAssets = () => {
   const [viewInfoCollaborator, setViewInfoCollaborator] =
     useState<ICollaborators>();
   const [dateRegister, setDateRegister] = useState<CalendarDate | undefined>(
-    historicEditing ? parseDate(convertDate(historicEditing.dateRegister)) : undefined
+    historicEditing
+      ? parseDate(convertDate(historicEditing.dateRegister))
+      : undefined
   );
   const [statusSelected, setStatusSelected] = useState(new Set([]));
+  const [filteredData, setFilteredData] = useState<IAssetsHistoric[]>([]);
 
   useEffect(() => {
     handleListAllHistoricAssets();
@@ -62,8 +65,11 @@ const useHistoricAssets = () => {
   });
 
   function convertDate(dateString: Date) {
-    const splitDate = new Date(dateString).toLocaleDateString("pt-BR", {
-      timeZone: "UTC"}).split("/");
+    const splitDate = new Date(dateString)
+      .toLocaleDateString("pt-BR", {
+        timeZone: "UTC",
+      })
+      .split("/");
 
     const newDate = new Date(
       Number(splitDate[2]),
@@ -106,16 +112,18 @@ const useHistoricAssets = () => {
     setIsLoading(true);
     const res = await listLastHistoric();
     const listComplete = await listAllHistoricAssets();
-
+   
     if (res.data) {
-      setLastAssetsHistoric(res.data);
+      const formatDate = res.data.map((item: IAssetsHistoric) => { return {...item, dateRegister: new Date(item.dateRegister).toLocaleDateString()}})
+      setLastAssetsHistoric(formatDate);
       setTotal(res.total);
     } else {
       setLastAssetsHistoric([]);
     }
 
     if (listComplete.data) {
-      setHistoricAssetsList(listComplete.data);
+      const formatDate = listComplete.data.map((item: IAssetsHistoric) => { return {...item, dateRegister: new Date(item.dateRegister).toLocaleDateString()}})
+      setHistoricAssetsList(formatDate);
     }
     setIsLoading(false);
   };
@@ -155,16 +163,21 @@ const useHistoricAssets = () => {
     }
   };
 
-  const updateHistoricAsset = async(data: IAssetsHistoric, assetId?: string, collaboratorId?: string, status?: string) => {
-    
+  const updateHistoricAsset = async (
+    data: IAssetsHistoric,
+    assetId?: string,
+    collaboratorId?: string,
+    status?: string
+  ) => {
     const edit: IAssetsHistoric = {
-      assetId: assetId || historicEditing?.assetId as string,
-      collaboratorId: collaboratorId || historicEditing?.collaboratorId as string,
+      assetId: assetId || (historicEditing?.assetId as string),
+      collaboratorId:
+        collaboratorId || (historicEditing?.collaboratorId as string),
       dateRegister: new Date(data.dateRegister),
       observation: data.observation,
-      status: status || historicEditing?.status as string,
-    }
-    
+      status: status || (historicEditing?.status as string),
+    };
+
     const res = await editRegisterHistoric(historicEditing?.id as string, edit);
 
     if (!res.errors) {
@@ -182,7 +195,6 @@ const useHistoricAssets = () => {
       setDateRegister(undefined);
     }
   };
-
 
   const handleCreateAssetHistoric = async (data: IAssetsHistoric) => {
     const asset = assetsAvailable.find((item) => {
@@ -211,10 +223,15 @@ const useHistoricAssets = () => {
         : null;
     });
 
-    if(historicEditing){
-      updateHistoricAsset(data, asset?.data.id, collaborator?.data.id, statusString);
+    if (historicEditing) {
+      updateHistoricAsset(
+        data,
+        asset?.data.id,
+        collaborator?.data.id,
+        statusString
+      );
 
-      return
+      return;
     }
 
     const newRegister: IAssetsHistoric = {
@@ -272,6 +289,8 @@ const useHistoricAssets = () => {
     convertDate,
     statusSelected,
     setStatusSelected,
+    filteredData,
+    setFilteredData,
   };
 };
 

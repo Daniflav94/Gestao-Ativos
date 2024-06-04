@@ -41,6 +41,7 @@ import { IAssetsHistoric } from "../../../interfaces/IAssetsHistoric.interface";
 import { IAssets } from "../../../interfaces/IAssets.interface";
 import { ICollaborators } from "../../../interfaces/ICollaborators.interface";
 import { I18nProvider } from "@react-aria/i18n";
+import { createReport } from "./report";
 
 interface Props {
   lastAssetsHistoric: IAssetsHistoric[];
@@ -67,13 +68,8 @@ export function TableManagement({
     Date | undefined
   >();
   const [dateFinalFilter, setDateFinalFilter] = useState<Date | undefined>();
-  const [valueDateRange, setValueDateRange] =
-    React.useState<RangeValue<DateValue>>();
-
-  useEffect(() => {
-    setFilterValue("");
-    setStatusFilter("");
-  }, [openModal]);
+  const [valueDateRange, setValueDateRange] = useState<RangeValue<DateValue>>();
+  const [filteredData, setFilteredData] = useState<IAssetsHistoric[]>([]);
 
   const statusColorMap = {
     Disponível: "success",
@@ -119,8 +115,11 @@ export function TableManagement({
 
   const statusOptions = ["Disponível", "Alocado", "Desabilitado", "Manutenção"];
 
-  const filteredItems = hasSearchFilter
-    ? historicAssetsList.filter((asset) => {
+  const items = hasSearchFilter ? filteredData : lastAssetsHistoric;
+
+  const filter = () => {
+    if (hasSearchFilter) {
+      let filter = historicAssetsList.filter((asset) => {
         if (
           statusFilter !== "" &&
           filterValue === "" &&
@@ -241,8 +240,13 @@ export function TableManagement({
             asset.asset?.idClient.includes(filterValue)
           );
         }
-      })
-    : lastAssetsHistoric;
+      });
+      setFilteredData(filter);
+      console.log(filter);
+    } else {
+      setFilteredData(lastAssetsHistoric);
+    }
+  };
 
   const onSearchChange = React.useCallback((value: string) => {
     if (value) {
@@ -257,11 +261,11 @@ export function TableManagement({
       const cellValue = (asset as any)[columnKey.toString()];
 
       switch (columnKey) {
-        case "dateRegister" || "createdAt":
+        case "dateRegister":
           return (
             <div className="flex flex-col">
               <p className="text-bold text-sm capitalize">
-                {new Date(cellValue).toLocaleDateString()}
+                {cellValue}
               </p>
             </div>
           );
@@ -525,7 +529,7 @@ export function TableManagement({
               className="bg-primary text-background"
               endContent={<ClipboardList size={18} />}
               size="sm"
-              onClick={() => {}}
+              onClick={() => {filteredData.length > 0 ? createReport(filteredData) : createReport(historicAssetsList)}}
             >
               Gerar relatório
             </Button>
@@ -542,11 +546,11 @@ export function TableManagement({
 
         {hasSearchFilter ? (
           <span className="text-default-400 text-small">
-            Encontrados {filteredItems.length} registros
+            Encontrados {items.length} registros
           </span>
         ) : (
           <span className="text-default-400 text-small">
-            Exibindo últimos {filteredItems.length} registros
+            Exibindo últimos {items.length} registros
           </span>
         )}
       </div>
@@ -555,10 +559,21 @@ export function TableManagement({
     filterValue,
     statusFilter,
     onSearchChange,
-    lastAssetsHistoric.length,
+    valueDateRange,
+    items.length,
     total,
     hasSearchFilter,
   ]);
+
+  useEffect(() => {
+    filter();
+  }, [hasSearchFilter, dateInitialFilter, filterValue, statusFilter]);
+
+
+  useEffect(() => {
+    setFilterValue("");
+    setStatusFilter("");
+  }, [openModal]);
 
   return (
     <S.Table>
@@ -571,7 +586,7 @@ export function TableManagement({
           )}
         </TableHeader>
         <TableBody
-          items={filteredItems}
+          items={items}
           emptyContent={"Nenhum registro encontrado"}
           loadingContent={<Spinner color="default" />}
           loadingState={isLoading ? "loading" : "idle"}

@@ -14,4 +14,5 @@ export interface IAssetsHistoric {
     observation?: string;
     status: string;
     createdAt?: string;
+    previousStatus?: string;
 }

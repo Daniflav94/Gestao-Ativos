@@ -26,7 +26,7 @@ export const Logo = styled.li`
 `;
 
 export const Img = styled.img`
-  width: 12rem;
+  width: 8rem;
 `;
 
 export const Div = styled.div`
