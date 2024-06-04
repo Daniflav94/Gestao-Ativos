@@ -7,11 +7,12 @@ import {
 
 interface Props {
   isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
+  onOpenChange?: (isOpen: boolean) => void;
   modalTitle: string;
   children: string | JSX.Element | JSX.Element[];
   size?: "lg" | "xs" | "sm" | "md" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full";
   backdrop?: "opaque" | "blur"
+  isDismissable: boolean;
 }
 
 export function CustomModal({
@@ -20,7 +21,8 @@ export function CustomModal({
   modalTitle,
   children,
   size = "lg",
-  backdrop = "opaque"
+  backdrop = "opaque",
+  isDismissable = true
 }: Props) {
   return (
     <>
@@ -30,6 +32,7 @@ export function CustomModal({
         className="max-h-[85%] overflow-auto outline-none p-2"
         size={size}
         backdrop={backdrop}
+        isDismissable={isDismissable}
       >
         <ModalContent>
           {() => (

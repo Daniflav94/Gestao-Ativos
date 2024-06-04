@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CustomModal } from "../../components/customModal";
 import { CustomInput } from "../../components/customInput";
 import { Button } from "@nextui-org/react";
@@ -14,11 +14,16 @@ interface ILogin {
   password: string;
 }
 
-export function LoginModal() {
-  const [isOpen, setIsOpen] = useState(false);
+interface Props {
+  isOpen: boolean;
+  setIsOpen: (setState: boolean) => void;
+}
+
+export function LoginModal({isOpen, setIsOpen}: Props) {
+
   const [isVisible, setIsVisible] = useState(false);
 
-  const token = localStorage.getItem("token");
+
   const navigate = useNavigate();
 
   const toggleVisibility = () => setIsVisible(!isVisible);
@@ -30,11 +35,6 @@ export function LoginModal() {
     formState: { errors },
   } = useForm<ILogin>();
 
-  useEffect(() => {
-    if (!token) {
-      setIsOpen(true);
-    }
-  }, [token]);
 
   const onSubmit: SubmitHandler<ILogin> = async (data) => {
     const resLogin = await login(data);
@@ -56,6 +56,7 @@ export function LoginModal() {
       }
 
       setIsOpen(false);
+      window.location.reload()
       navigate("/");
     }
   };
@@ -68,7 +69,8 @@ export function LoginModal() {
         backdrop="blur"
         size="sm"
         isOpen={isOpen}
-        onOpenChange={setIsOpen}
+
+        isDismissable={false}
       >
         <S.Form onSubmit={handleSubmit(onSubmit)}>
           <CustomInput

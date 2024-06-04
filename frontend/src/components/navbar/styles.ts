@@ -15,7 +15,7 @@ export const Ul = styled.ul`
   width: 100%;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 5rem;
+  padding: 1rem 2rem;
   margin: 0;
 `;
 
@@ -26,7 +26,7 @@ export const Logo = styled.li`
 `;
 
 export const Img = styled.img`
-  width: 8rem;
+  width: 7rem;
 `;
 
 export const Div = styled.div`
