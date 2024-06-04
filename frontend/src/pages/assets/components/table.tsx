@@ -108,7 +108,7 @@ export function TableComponent({
     { key: "actions", label: "" },
   ];
   const statusOptions = ["Disponível", "Alocado", "Desabilitado", "Manutenção"];
-
+ 
   const filteredItems = hasSearchFilter
     ? listComplete.filter((asset) => {
         if (statusFilter != "" && filterValue === "") {

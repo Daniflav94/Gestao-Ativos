@@ -38,7 +38,7 @@ export const listAll = async () => {
 
 export const listAllWithPagination = async (page: number) => {
   try {
-    const res = await fetch(`${api}/assets?page=${page}`, {
+    const res = await fetch(`${api}/assets?page=${page}&take=8`, {
       method: "GET",
       headers: {
         Accept: "application/json",
