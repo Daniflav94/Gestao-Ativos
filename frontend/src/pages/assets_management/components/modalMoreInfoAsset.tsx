@@ -3,6 +3,7 @@ import { IAssets } from "../../../interfaces/IAssets.interface";
 import iconPdf from "../../../assets/icons/pdf.png";
 import * as S from "../styles";
 import { ICollaborators } from "../../../interfaces/ICollaborators.interface";
+import { uploads } from "../../../utils/config";
 
 interface Props {
   data: IAssets | ICollaborators;
@@ -61,7 +62,7 @@ export function ModalMoreInfoAsset({ isOpen, onOpenChange, data }: Props) {
           <span>
             {(data as IAssets)?.invoice ? (
               <a
-                href={(data as IAssets).invoice}
+                href={`${uploads}/${(data as IAssets).invoice}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
