@@ -12,7 +12,7 @@ interface Props {
   children: string | JSX.Element | JSX.Element[];
   size?: "lg" | "xs" | "sm" | "md" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full";
   backdrop?: "opaque" | "blur"
-  isDismissable: boolean;
+  isDismissable?: boolean;
 }
 
 export function CustomModal({

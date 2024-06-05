@@ -69,7 +69,6 @@ export function LoginModal({isOpen, setIsOpen}: Props) {
         backdrop="blur"
         size="sm"
         isOpen={isOpen}
-
         isDismissable={false}
       >
         <S.Form onSubmit={handleSubmit(onSubmit)}>

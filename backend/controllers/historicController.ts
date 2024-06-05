@@ -225,7 +225,8 @@ export const listAllHistoric = async (req: Req, res: Response) => {
     });
   }
 
-  const total = await prisma.assetsHistoric.count();
+  const total = await prisma.assetsHistoric.count({
+    where: { organizationId: user?.organizationId }});
 
   res.status(201).json({
     data: assetsHistoric,
@@ -233,86 +234,3 @@ export const listAllHistoric = async (req: Req, res: Response) => {
   });
 };
 
-export const filterHistoric = async (req: Req, res: Response) => {
-  const filter: IFilter = req.body;
-  const idUser = req.user?.id;
-
-  const user = await prisma.user.findUnique({
-    where: { id: idUser },
-  });
-  
-  if (!user) {
-    res.status(400).json({ errors: ["Erro ao encontrar usuário."] });
-    return;
-  }
-
-  const historic = await prisma.assetsHistoric.findMany({
-    where: { organizationId: user?.organizationId },
-    orderBy: { createdAt: "desc" },
-    include: { asset: true, collaborator: true, user: true },
-  });
-
-  let arrayHistoricFilter: AssetsHistoric[] = [];
-
-  const keys = Object.keys(filter) as Array<keyof typeof filter>;
-
-  if (historic) {
-    for (let item of historic) {
-      let isFiltered: boolean[] = [];
-
-      keys.forEach(async (key) => {
-        if (
-          key === "description" ||
-          key === "idClient" ||
-          key === "supplier" ||
-          key === "status"
-        ) {
-          isFiltered.push(
-            item.asset[key]
-              .toLowerCase()
-              .includes((filter[key] as string).toLowerCase())
-          );
-        } else if (key === "name" || (key === "email" && item.collaborator)) {
-          isFiltered.push(
-            (item.collaborator as Collaborator)[key]
-              .toLowerCase()
-              .includes((filter[key] as string).toLowerCase()) ||
-              item.user[key]
-                .toLowerCase()
-                .includes((filter[key] as string).toLowerCase())
-          );
-        } else if (
-          key === "dateRegisterFinal" ||
-          key === "dateRegisterInitial"
-        ) {
-          const dateItemTmz = item.dateRegister.getTime();
-          const dateInitialTmz = new Date(
-            filter["dateRegisterInitial"] as Date
-          ).getTime();
-          const dateFinalTmz = new Date(
-            filter["dateRegisterFinal"] as Date
-          ).getTime();
-
-          if (dateInitialTmz && dateFinalTmz) {
-            isFiltered.push(
-              dateItemTmz >= dateInitialTmz && dateItemTmz <= dateFinalTmz
-            );
-          } else if (dateInitialTmz && !dateFinalTmz) {
-            isFiltered.push(dateItemTmz >= dateInitialTmz);
-          } else if (!dateInitialTmz && dateFinalTmz) {
-            isFiltered.push(dateItemTmz <= dateFinalTmz);
-          }
-        }
-      });
-
-      if (!isFiltered.includes(false)) {
-        arrayHistoricFilter.push(item);
-      }
-    }
-  }
-
-  res.status(201).json({
-    data: arrayHistoricFilter,
-    total: arrayHistoricFilter.length,
-  });
-};

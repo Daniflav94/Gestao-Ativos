@@ -170,8 +170,7 @@ export function ModalAsset({
           onChange={(value) => {
             setCanAllocated(value);
           }}
-          placeholder={asset?.canAllocated ? "Sim" : "Não"}
-          defaultSelectedKeys={[asset?.canAllocated === true || !asset?.canAllocated ? "Sim" : "Não"]}
+          defaultSelectedKeys={[asset?.canAllocated === true]}
         />
 
         <S.InputFile>

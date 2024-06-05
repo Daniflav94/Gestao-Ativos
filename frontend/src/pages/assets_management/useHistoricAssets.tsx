@@ -98,10 +98,17 @@ const useHistoricAssets = () => {
     }
   };
 
-  const openModal = (type: string, data?: IAssetsHistoric) => {
+  const openModal = async(type: string, data?: IAssetsHistoric) => {  
+    const assets = await listAll();
+    const collaborators = await listActiveCollaborators();
+
     if (type === "new") {
-      setHistoricEditing(undefined);
-      setIsModalNewHistoricOpen(true);
+      if (assets.data.length > 0 && collaborators.data.length > 0) {
+        setHistoricEditing(undefined);
+        setIsModalNewHistoricOpen(true);
+      }else {
+        toast.warning("Você precisa cadastrar ativos e colaboradores antes de criar uma nova ocorrência!")
+      }
     } else {
       setHistoricEditing(data);
       setIsModalNewHistoricOpen(true);
@@ -112,9 +119,14 @@ const useHistoricAssets = () => {
     setIsLoading(true);
     const res = await listLastHistoric();
     const listComplete = await listAllHistoricAssets();
-   
+
     if (res.data) {
-      const formatDate = res.data.map((item: IAssetsHistoric) => { return {...item, dateRegister: new Date(item.dateRegister).toLocaleDateString()}})
+      const formatDate = res.data.map((item: IAssetsHistoric) => {
+        return {
+          ...item,
+          dateRegister: new Date(item.dateRegister).toLocaleDateString(),
+        };
+      });
       setLastAssetsHistoric(formatDate);
       setTotal(res.total);
     } else {
@@ -122,7 +134,12 @@ const useHistoricAssets = () => {
     }
 
     if (listComplete.data) {
-      const formatDate = listComplete.data.map((item: IAssetsHistoric) => { return {...item, dateRegister: new Date(item.dateRegister).toLocaleDateString()}})
+      const formatDate = listComplete.data.map((item: IAssetsHistoric) => {
+        return {
+          ...item,
+          dateRegister: new Date(item.dateRegister).toLocaleDateString(),
+        };
+      });
       setHistoricAssetsList(formatDate);
     }
     setIsLoading(false);
@@ -130,7 +147,6 @@ const useHistoricAssets = () => {
 
   const handleListAssets = async () => {
     const res = await listAll();
-
     if (res.data) {
       const formatAssets = res.data.map(
         (asset: { idClient: any; description: any }) => {

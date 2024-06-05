@@ -112,7 +112,9 @@ export const listAllCollaborators = async (req: Req, res: Response) => {
   const page = req.query.page || 1;
   const take = Number(req.query.take) || null;
 
-  const total = await prisma.collaborator.count();
+  const total = await prisma.collaborator.count({
+    where: { organizationId: user?.organizationId },
+  });
 
   let collaborators: Collaborator[] = [];
 

@@ -7,9 +7,9 @@ interface Req extends Request {
   user?: User | null;
 }
 
-const verifyAssetExist = async (idClient: string) => {
-  const asset = await prisma.asset.findUnique({
-    where: { idClient },
+const verifyAssetExist = async (idClient: string, user: User) => {
+  const asset = await prisma.asset.findFirst({
+    where: { idClient, organizationId: user.organizationId },
   });
 
   return asset;
@@ -29,7 +29,7 @@ export const registerAsset = async (req: Req, res: Response) => {
     return;
   }
 
-  const asset = await verifyAssetExist(data.idClient);
+  const asset = await verifyAssetExist(data.idClient, user);
 
   if (asset) {
     res.status(400).json({ errors: ["Ativo já cadastrado."] });
@@ -156,7 +156,7 @@ export const listAllAssets = async (req: Req, res: Response) => {
     });
   }
 
-  const total = await prisma.asset.count();
+  const total = await prisma.asset.count({where: { organizationId: user?.organizationId }});
 
   res.status(201).json({
     data: assets,

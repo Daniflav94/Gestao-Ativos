@@ -45,7 +45,7 @@ model Collaborator {
 
 model Asset {
   id               String   @id @default(uuid())
-  idClient         String   @unique
+  idClient         String   
   description      String
   purchaseDate     DateTime @db.Date
   closingGuarantee DateTime @db.Date

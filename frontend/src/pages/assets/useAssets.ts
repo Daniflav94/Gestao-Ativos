@@ -228,7 +228,7 @@ const useAssets = () => {
       if (!res.errors) {
         toast.success("Ativo cadastrado com sucesso!");
 
-        handleListAssets(0);
+        handleListAssets(1);
         setIsModalOpen(false);
 
         reset();
