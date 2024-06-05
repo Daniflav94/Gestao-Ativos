@@ -5,6 +5,10 @@ const prisma = new PrismaClient();
 
 interface Req extends Request {
   user?: User | null;
+  file?: FileKey;
+}
+interface FileKey extends Express.Multer.File {
+  key: string;
 }
 
 const verifyAssetExist = async (idClient: string, user: User) => {
@@ -17,7 +21,7 @@ const verifyAssetExist = async (idClient: string, user: User) => {
 
 export const registerAsset = async (req: Req, res: Response) => {
   const data = req.body;
-  const invoice = req.file?.filename;
+  const invoice = req.file?.key;
   const idUser = req.user?.id;
 
   const user = await prisma.user.findUnique({
