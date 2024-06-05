@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: false}));
 
-app.use(cors({origin: ["http://localhost:5173", "gestao-ativos-smoky.vercel.app"]}));
+app.use(cors({origin: "gestao-ativos-smoky.vercel.app"}));
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 app.use(router);
