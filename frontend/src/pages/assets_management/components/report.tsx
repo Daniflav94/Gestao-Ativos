@@ -1,11 +1,11 @@
 import { IAssetsHistoric } from "../../../interfaces/IAssetsHistoric.interface";
 import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
+import * as pdfFonts from "./vfs_fonts";
 import { Content, PredefinedPageSize } from "pdfmake/interfaces";
 import { StatusAssets } from "../../../enums/statusAssets.enum";
 
 export function createReport(data: IAssetsHistoric[]) {
-  pdfMake.vfs = pdfFonts.pdfMake.vfs;
+  pdfMake.vfs = pdfFonts.default;
 
   function changeColor(status: string) {
     const statusColorMap = {
