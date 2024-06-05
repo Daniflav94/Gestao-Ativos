@@ -160,18 +160,31 @@ export function ModalAsset({
           refs={register("supplier")}
           isRequired
         />
-
-        <CustomSelect
-          listItems={[
-            { value: "Sim", label: "Sim" },
-            { value: "Não", label: "Não" },
-          ]}
-          label="Pode ser alocado?"
-          onChange={(value) => {
-            setCanAllocated(value);
-          }}
-          defaultSelectedKeys={[asset?.canAllocated === true]}
-        />
+        {asset ? (
+          <CustomSelect
+            listItems={[
+              { value: "Sim", label: "Sim" },
+              { value: "Não", label: "Não" },
+            ]}
+            label="Pode ser alocado?"
+            onChange={(value) => {
+              setCanAllocated(value);
+            }}
+            defaultSelectedKeys={[asset?.canAllocated === true ? "Sim" : "Não"]}
+            placeholder={asset?.canAllocated ? "Sim" : "Não"}
+          />
+        ) : (
+          <CustomSelect
+            listItems={[
+              { value: "Sim", label: "Sim" },
+              { value: "Não", label: "Não" },
+            ]}
+            label="Pode ser alocado?"
+            onChange={(value) => {
+              setCanAllocated(value);
+            }}
+          />
+        )}
 
         <S.InputFile>
           <S.ContentInputFile>

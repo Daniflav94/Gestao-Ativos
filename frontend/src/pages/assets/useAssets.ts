@@ -167,7 +167,7 @@ const useAssets = () => {
     if (!res.errors) {
       toast.success("Ativo editado!");
 
-      handleListAssets(0);
+      handleListAssets(1);
       setIsModalOpen(false);
 
       reset();
