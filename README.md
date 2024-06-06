@@ -16,7 +16,7 @@ Aplicação web desenvolvida para gerenciar ativos, no qual é possível cadastr
 
 ## Deploy
 Acesse a aplicação utilizando as credenciais abaixo:
-- login: teste@email.com
+- login: prod1@email.com
 - senha: 123456
   
 [gestao-ativos-smoky.vercel.app](https://gestao-ativos-smoky.vercel.app/)
