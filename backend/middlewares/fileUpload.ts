@@ -6,9 +6,6 @@ import crypto from "crypto";
 import { S3Client } from "@aws-sdk/client-s3";
 
 type StorageType = "local" | "s3";
-interface FileKey extends Express.Multer.File {
-  key: string;
-}
 
 const s3Config = new S3Client({
   region: "us-east-2",
@@ -24,9 +21,9 @@ const fileStorage: { [key in StorageType]: multer.StorageEngine } = {
       const folder = "invoices";
       cb(null, `uploads/${folder}/`);
     },
-    filename: (req, file: FileKey, cb) => {
+    filename: (req, file, cb) => {
       crypto.randomBytes(16, (err, hash) => {
-        cb(null, file.key = `${hash.toString("hex")}-${file.originalname}`);
+        cb(null, `${hash.toString("hex")}-${file.originalname}`);
       });
     },
   }),

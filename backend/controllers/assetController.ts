@@ -5,10 +5,6 @@ const prisma = new PrismaClient();
 
 interface Req extends Request {
   user?: User | null;
-  file?: FileKey;
-}
-interface FileKey extends Express.Multer.File {
-  key: string;
 }
 
 const verifyAssetExist = async (idClient: string, user: User) => {
@@ -21,7 +17,7 @@ const verifyAssetExist = async (idClient: string, user: User) => {
 
 export const registerAsset = async (req: Req, res: Response) => {
   const data = req.body;
-  const invoice = req.file?.key;
+  const invoice = req.file?.filename;
   const idUser = req.user?.id;
 
   const user = await prisma.user.findUnique({
@@ -97,7 +93,7 @@ export const updateAsset = async (req: Request, res: Response) => {
   });
 };
 
-export const updateFileAsset = async(req: Request, res: Response) => {
+export const updateFileAsset = async (req: Request, res: Response) => {
   const { id } = req.params;
   const invoice = req.file?.filename;
 
@@ -124,8 +120,7 @@ export const updateFileAsset = async(req: Request, res: Response) => {
   }
 
   res.status(201).json("Nota fiscal editada com sucesso.");
-
-}
+};
 
 export const listAllAssets = async (req: Req, res: Response) => {
   const idUser = req.user?.id;
@@ -160,7 +155,9 @@ export const listAllAssets = async (req: Req, res: Response) => {
     });
   }
 
-  const total = await prisma.asset.count({where: { organizationId: user?.organizationId }});
+  const total = await prisma.asset.count({
+    where: { organizationId: user?.organizationId },
+  });
 
   res.status(201).json({
     data: assets,
