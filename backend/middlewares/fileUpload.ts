@@ -1,10 +1,14 @@
 import multer from "multer";
-import { S3Client } from "@aws-sdk/client-s3";
-import { Upload } from "@aws-sdk/lib-storage";
 import crypto from "crypto";
 import { Request, Response, NextFunction } from "express";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 
 type StorageType = "local" | "s3";
+
+interface MulterFileWithLocation extends Express.Multer.File {
+  location?: string;
+}
 
 const s3Config = new S3Client({
   region: "us-east-2",
@@ -53,9 +57,14 @@ const uploadToS3 = async (req: Request, res: Response, next: NextFunction) => {
       params: uploadParams,
     });
 
-    await parallelUploads3.done();
+    const result = await parallelUploads3.done();
 
-    (req.file as any).location = `https://${process.env.BUCKET_NAME}.s3.${s3Config.config.region}.amazonaws.com/${fileName}`;
+    if (result && result.Location) {
+      (req.file as MulterFileWithLocation).location = result.Location; 
+    } else {
+      (req.file as MulterFileWithLocation).location = `https://${process.env.BUCKET_NAME}.s3.${s3Config.config.region}.amazonaws.com/${fileName}`;
+    }
+
     next();
   } catch (err) {
     console.error("Error uploading to S3", err);
@@ -63,5 +72,4 @@ const uploadToS3 = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-// Função de upload com base no tipo de armazenamento
 export const fileUpload = (process.env.STORAGE_TYPE as StorageType === "s3" ? [uploadS3.single("invoice"), uploadToS3] : [uploadLocal.single("invoice")]);
