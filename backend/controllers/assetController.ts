@@ -100,7 +100,8 @@ export const updateAsset = async (req: Request, res: Response) => {
 
 export const updateFileAsset = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const invoice = req.file?.filename;
+  const file = req.file as MulterFileWithLocation;
+  const invoice = file?.location || req.file?.filename;
 
   const asset = await prisma.asset.findUnique({ where: { id } });
 
