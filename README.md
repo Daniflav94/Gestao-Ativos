@@ -8,6 +8,7 @@
 - Prisma;
 - PostgreSQL;
 - PdfMake;
+- S3 AWS para upload de arquivos;
 - Docker.
 
 ## Descrição
