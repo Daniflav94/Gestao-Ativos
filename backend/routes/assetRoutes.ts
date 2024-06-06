@@ -7,9 +7,9 @@ import { fileUpload } from "../middlewares/fileUpload";
 
 const router = express.Router();
 
-router.post("/", authGuard, fileUpload.single("invoice"), assetValidation(), validate, registerAsset);
+router.post("/", authGuard, ...fileUpload, assetValidation(), validate, registerAsset);
 router.get("/", authGuard, validate, listAllAssets);
 router.put("/:id", authGuard, updateAssetValidation(), validate, updateAsset);
-router.patch("/file/:id", authGuard, fileUpload.single("invoice"), validate, updateFileAsset)
+router.patch("/file/:id", authGuard, ...fileUpload, validate, updateFileAsset)
 
 module.exports = router;

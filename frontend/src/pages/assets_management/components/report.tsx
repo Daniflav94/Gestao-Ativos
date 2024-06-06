@@ -41,7 +41,7 @@ export function createReport(data: IAssetsHistoric[]) {
           text: "Relatório de Ativos",
           fontSize: 20,
           bold: true,
-          margin: [145, 28],
+          margin: [145, 25],
           alignment: "left",
         },
       ],
@@ -89,7 +89,7 @@ export function createReport(data: IAssetsHistoric[]) {
 
     const lineHeader = [
       {
-        text: "__________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________",
+        text: "__________________________________________________________________________________________________________________________________________________________________________________________________________________________________",
         alignment: "left",
         fontSize: 5,
         colSpan: 7,
@@ -196,12 +196,12 @@ export function createReport(data: IAssetsHistoric[]) {
     styles: {
       header: {
         bold: true,
-        fontSize: 9,
-        margin: [0, 50, 0, 0] as [number, number, number, number],
+        fontSize: 8,
+        margin: [0, 55, 0, 0] as [number, number, number, number],
         color: "#525252",
       },
       contentTable: {
-        fontSize: 10,
+        fontSize: 9,
         margin: [5, 8] as [number, number],
       },
     },

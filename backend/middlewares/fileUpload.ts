@@ -1,9 +1,8 @@
 import multer from "multer";
-import path from "path";
-import AWS from "aws-sdk";
-import multerS3 from "multer-s3";
-import crypto from "crypto";
 import { S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
+import crypto from "crypto";
+import { Request, Response, NextFunction } from "express";
 
 type StorageType = "local" | "s3";
 
@@ -15,39 +14,54 @@ const s3Config = new S3Client({
   },
 });
 
-const fileStorage: { [key in StorageType]: multer.StorageEngine } = {
-  local: multer.diskStorage({
-    destination: function (req, file, cb) {
-      const folder = "invoices";
-      cb(null, `uploads/${folder}/`);
-    },
-    filename: (req, file, cb) => {
-      crypto.randomBytes(16, (err, hash) => {
-        cb(null, `${hash.toString("hex")}-${file.originalname}`);
-      });
-    },
-  }),
-  s3: multerS3({
-    s3: s3Config,
-    bucket: process.env.BUCKET_NAME as string,
-    contentType: multerS3.AUTO_CONTENT_TYPE,
-    acl: "public-read",
-    key: (req, file, cb) => {
-      crypto.randomBytes(16, (err, hash) => {
-        if (err) cb(err);
-        const fileName = `${hash.toString("hex")}-${file.originalname}`;
-        cb(null, fileName);
-      });
-    },
-  }),
-};
-
-export const fileUpload = multer({
-  storage: fileStorage[process.env.STORAGE_TYPE as StorageType],
-  fileFilter(req, file, cb) {
-    if (!file.originalname.match(/\.(png|jpg|jpeg|pdf)$/)) {
-      return cb(new Error("Por favor, envie apenas png, jpg, jpeg ou pdf!"));
-    }
-    cb(null, true);
+const storageLocal = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const folder = "invoices";
+    cb(null, `uploads/${folder}/`);
+  },
+  filename: (req, file, cb) => {
+    crypto.randomBytes(16, (err, hash) => {
+      if (err) cb(err, "");
+      cb(null, `${hash.toString("hex")}-${file.originalname}`);
+    });
   },
 });
+
+const uploadLocal = multer({ storage: storageLocal });
+
+const uploadS3 = multer({ storage: multer.memoryStorage() });
+
+const uploadToS3 = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.file) {
+    return next();
+  }
+
+  const fileBuffer = req.file.buffer;
+  const hash = crypto.randomBytes(16).toString("hex");
+  const fileName = `${hash}-${req.file.originalname}`;
+
+  const uploadParams = {
+    Bucket: process.env.BUCKET_NAME as string,
+    Key: fileName,
+    Body: fileBuffer,
+    ContentType: req.file.mimetype,
+  };
+
+  try {
+    const parallelUploads3 = new Upload({
+      client: s3Config,
+      params: uploadParams,
+    });
+
+    await parallelUploads3.done();
+
+    (req.file as any).location = `https://${process.env.BUCKET_NAME}.s3.${s3Config.config.region}.amazonaws.com/${fileName}`;
+    next();
+  } catch (err) {
+    console.error("Error uploading to S3", err);
+    res.status(500).send("Error uploading file to S3");
+  }
+};
+
+// Função de upload com base no tipo de armazenamento
+export const fileUpload = (process.env.STORAGE_TYPE as StorageType === "s3" ? [uploadS3.single("invoice"), uploadToS3] : [uploadLocal.single("invoice")]);

@@ -7,6 +7,10 @@ interface Req extends Request {
   user?: User | null;
 }
 
+interface MulterFileWithLocation extends Express.Multer.File {
+  location?: string;
+}
+
 const verifyAssetExist = async (idClient: string, user: User) => {
   const asset = await prisma.asset.findFirst({
     where: { idClient, organizationId: user.organizationId },
@@ -17,7 +21,8 @@ const verifyAssetExist = async (idClient: string, user: User) => {
 
 export const registerAsset = async (req: Req, res: Response) => {
   const data = req.body;
-  const invoice = req.file?.filename;
+  const file = req.file as MulterFileWithLocation;
+  const invoice = file?.location || req.file?.filename;
   const idUser = req.user?.id;
 
   const user = await prisma.user.findUnique({

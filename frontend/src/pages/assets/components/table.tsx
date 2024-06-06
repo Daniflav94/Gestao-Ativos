@@ -163,6 +163,7 @@ export function TableComponent({
   const renderCell = React.useCallback(
     (asset: IAssets, columnKey: React.Key) => {
       const cellValue = (asset as any)[columnKey.toString()];
+      const invoiceUrl = asset.invoice?.startsWith("http") ? asset.invoice : `${uploads}/${asset.invoice}`;
 
       switch (columnKey) {
         case "uid" || "description" || "supplier":
@@ -225,7 +226,7 @@ export function TableComponent({
             <div className="flex flex-col items-center">
               {asset.invoice ? (
                 <a
-                  href={`${uploads}/${asset.invoice}`}
+                  href={invoiceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
