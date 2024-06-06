@@ -18,7 +18,7 @@ Acesse a aplicação utilizando as credenciais abaixo:
 - login: teste@email.com
 - senha: 123456
   
-gestao-ativos-smoky.vercel.app
+[gestao-ativos-smoky.vercel.app](https://gestao-ativos-smoky.vercel.app/)
 
 ## Demonstração da aplicação
 
