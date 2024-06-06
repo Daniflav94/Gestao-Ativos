@@ -98,3 +98,11 @@ a{
 .data-\[focus-visible\=true\]\:outline-focus {
   outline-color: none;
 }
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px white inset;
+}
+
+input:-webkit-autofill {
+  -webkit-text-fill-color: rgb(0, 0, 0) !important;
+}
