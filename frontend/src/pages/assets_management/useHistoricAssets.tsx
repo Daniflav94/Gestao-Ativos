@@ -226,6 +226,7 @@ const useHistoricAssets = () => {
     });
 
     let statusString = "";
+    console.log("colaborador fieldstate", collaborator)
 
     statusSelected.forEach((value: string) => {
       value === "Alocado"
@@ -258,6 +259,7 @@ const useHistoricAssets = () => {
       status: statusString,
       createdAt: new Date().toLocaleDateString(),
     };
+    console.log(newRegister)
 
     const res = await createAssetHistoric(
       JSON.parse(JSON.stringify(newRegister))
@@ -270,6 +272,11 @@ const useHistoricAssets = () => {
       handleListAssets();
       setIsModalNewHistoricOpen(false);
       setDateRegister(undefined);
+      setFieldStateCollaborator({
+        selectedKey: "",
+        inputValue: "",
+        items: collaborators,
+      })
     } else {
       res.errors[0].msg
         ? toast.error(res.errors[0].msg)

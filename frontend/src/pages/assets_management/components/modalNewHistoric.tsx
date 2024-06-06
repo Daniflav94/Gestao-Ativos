@@ -178,7 +178,6 @@ export function ModalNewHistoric({
   }, [statusSelected]);
 
   useEffect(() => {
-    reset();
     setErrorDate("");
     setAssetSelected("");
     setDisabledCollaborators(true);
