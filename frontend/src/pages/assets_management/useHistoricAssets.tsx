@@ -121,26 +121,14 @@ const useHistoricAssets = () => {
     const listComplete = await listAllHistoricAssets();
 
     if (res.data) {
-      const formatDate = res.data.map((item: IAssetsHistoric) => {
-        return {
-          ...item,
-          dateRegister: new Date(item.dateRegister).toLocaleDateString(),
-        };
-      });
-      setLastAssetsHistoric(formatDate);
+      setLastAssetsHistoric(res.data);
       setTotal(res.total);
     } else {
       setLastAssetsHistoric([]);
     }
 
     if (listComplete.data) {
-      const formatDate = listComplete.data.map((item: IAssetsHistoric) => {
-        return {
-          ...item,
-          dateRegister: new Date(item.dateRegister).toLocaleDateString(),
-        };
-      });
-      setHistoricAssetsList(formatDate);
+      setHistoricAssetsList(listComplete.data);
     }
     setIsLoading(false);
   };
@@ -226,7 +214,6 @@ const useHistoricAssets = () => {
     });
 
     let statusString = "";
-    console.log("colaborador fieldstate", collaborator)
 
     statusSelected.forEach((value: string) => {
       value === "Alocado"
@@ -259,7 +246,6 @@ const useHistoricAssets = () => {
       status: statusString,
       createdAt: new Date().toLocaleDateString(),
     };
-    console.log(newRegister)
 
     const res = await createAssetHistoric(
       JSON.parse(JSON.stringify(newRegister))

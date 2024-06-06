@@ -139,6 +139,7 @@ export function TableManagement({
             new Date(asset.dateRegister) >= dateInitialFilter &&
             new Date(asset.dateRegister) <= dateFinalFilter
           ) {
+            
             return asset;
           }
         } else if (
@@ -242,7 +243,6 @@ export function TableManagement({
         }
       });
       setFilteredData(filter);
-      console.log(filter);
     } else {
       setFilteredData(lastAssetsHistoric);
     }
@@ -265,7 +265,7 @@ export function TableManagement({
           return (
             <div className="flex flex-col">
               <p className="text-bold text-sm capitalize">
-                {cellValue}
+                {new Date(cellValue).toLocaleDateString()}
               </p>
             </div>
           );

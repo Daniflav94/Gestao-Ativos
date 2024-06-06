@@ -128,7 +128,7 @@ export function createReport(data: IAssetsHistoric[]) {
           color: changeColor(data.status),
         },
         {
-          text: data.dateRegister,
+          text: new Date(data.dateRegister).toLocaleDateString(),
           border: [false, false, false, false],
           style: "contentTable",
         },
