@@ -239,7 +239,7 @@ export function ModalNewHistoric({
             onChange={(value) => {
               setStatusSelected(value);
             }}
-            isDisabled={assetSelected === ""}
+            isDisabled={historicEditing ? true : assetSelected === "" ? true : false}
             placeholder={historicEditing?.status}
             defaultSelectedKeys={[historicEditing?.status]}
           />
