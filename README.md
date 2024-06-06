@@ -25,8 +25,9 @@ Acesse a aplicação utilizando as credenciais abaixo:
 
 ![image](https://github.com/Daniflav94/Gestao-Ativos/assets/99519903/ff81f81d-4867-443c-a695-0cfce9cfa35d)
 ![image](https://github.com/Daniflav94/Gestao-Ativos/assets/99519903/a6db853b-a39a-49f9-aff7-5188782f8550)
+![image](https://github.com/Daniflav94/Gestao-Ativos/assets/99519903/1c464989-34f1-4a10-a906-2ddbcc76a550)
 ![image](https://github.com/Daniflav94/Gestao-Ativos/assets/99519903/8695412a-84f5-4751-becd-f75487ccc058)
-[relatorio-exemplo-alocados.pdf](https://github.com/user-attachments/files/15672525/relatorio-exemplo-alocados.pdf)
+
 ![image](https://github.com/Daniflav94/Gestao-Ativos/assets/99519903/f2a31b3e-ea3b-4a32-8d15-fcaabcad6112)
 ![image](https://github.com/Daniflav94/Gestao-Ativos/assets/99519903/df531106-a557-4806-91d3-140efa0e1176)
 ![image](https://github.com/Daniflav94/Gestao-Ativos/assets/99519903/ddddc249-5f6d-4d26-a3ec-07ce13b9f8cb)
