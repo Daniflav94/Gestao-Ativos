@@ -386,8 +386,8 @@ export function TableManagement({
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
-        <div className="flex justify-between gap-3 w-full items-center">
-          <div className="flex gap-3 w-full items-end">
+        <div className="flex md:flex-row flex-col justify-between md:gap-3 w-full items-center">
+          <div className="flex md:flex-row flex-col gap-3 w-full md:items-end items-center">
             <Input
               isClearable
               classNames={{

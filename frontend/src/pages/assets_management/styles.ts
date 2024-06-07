@@ -7,6 +7,10 @@ export const Container = styled.nav`
   margin: 7rem 0;
   flex-direction: column;
   align-items: center;
+
+  @media only screen and (max-width: 700px){
+    margin : 5rem 0;
+  }
 `;
 
 export const Header = styled.div`
@@ -15,6 +19,10 @@ export const Header = styled.div`
   flex-direction: column;
   box-sizing: border-box;
   padding: 0 4rem;
+
+  @media only screen and (max-width: 700px){
+  padding : 0 1rem;
+  }
 `;
 
 export const Title = styled.h3`
@@ -35,6 +43,10 @@ export const Table = styled.div`
   margin: 2rem;
   padding: 0 4rem;
   width: 100%;
+
+  @media only screen and (max-width: 700px){
+  padding : 0 1rem;
+  }
 `;
 
 export const IconClose = styled.img`

@@ -29,7 +29,7 @@ export function CustomModal({
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        className="max-h-[85%] overflow-auto outline-none p-2"
+        className="max-h-[85%] overflow-auto outline-none p-2 absolute left-1/2 top-1/2 md:top-1/3 -translate-x-1/2 md:-translate-y-1/3 -translate-y-1/2"
         size={size}
         backdrop={backdrop}
         isDismissable={isDismissable}
